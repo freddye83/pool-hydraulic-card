@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag matches card version
+        run: |
+          V=$(grep -oP 'PHC_VERSION = "\K[^"]+' dist/pool-hydraulic-card.js)
+          if [ "v$V" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match PHC_VERSION $V"; exit 1
+          fi
+
+      - name: Extract release notes from CHANGELOG.md
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          awk -v v="$V" '
+            $0 ~ "^## \\[" v "\\]" {found=1; next}
+            found && /^## \[/ {exit}
+            found {print}
+          ' CHANGELOG.md > release-notes.md
+          cat release-notes.md
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body_path: release-notes.md
+          files: dist/pool-hydraulic-card.js

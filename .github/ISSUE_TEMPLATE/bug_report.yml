@@ -1,0 +1,41 @@
+name: Bug report / Signaler un bug
+description: Something does not work as expected / Quelque chose ne fonctionne pas
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Card version / Version de la carte
+      description: Shown in the browser console and at the top of the visual editor / Affichée dans la console et en haut de l'éditeur
+      placeholder: "1.2.1"
+    validations:
+      required: true
+  - type: input
+    id: ha
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.11.2"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser / app / Navigateur ou application
+      placeholder: "Chrome 142, HA Companion Android…"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened? / Que se passe-t-il ?
+      description: Include screenshots if possible / Ajoutez des captures si possible
+    validations:
+      required: true
+  - type: textarea
+    id: yaml
+    attributes:
+      label: Card YAML (minimal) / YAML de la carte (minimal)
+      render: yaml
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console errors / Erreurs de la console
+      render: text

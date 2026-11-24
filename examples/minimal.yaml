@@ -1,0 +1,64 @@
+# Minimal example — replace the entity ids with yours
+type: custom:pool-hydraulic-card
+title: Pool
+width: 760
+height: 420
+items:
+  - type: pool
+    id: pool
+    name: Pool
+    at: [40, 20]
+    size: [420, 140]
+    entity: switch.pool_pump
+    temperature_entity: sensor.pool_water_temperature
+  - type: skimmer
+    id: skimmer
+    at: [122, 146]
+  - type: inlet
+    id: inlet
+    at: [420, 146]
+    entity: switch.pool_pump
+  - type: zone
+    id: plant_room
+    name: Plant room
+    at: [20, 200]
+    size: [720, 200]
+  - type: pump
+    id: pump
+    name: Filtration pump
+    at: [70, 260]
+    entity: switch.pool_pump
+    badges:
+      - entity: sensor.pool_pump_power
+  - type: filter
+    id: filter
+    name: Sand filter
+    at: [220, 246]
+  - type: heat_pump
+    id: heat_pump
+    name: Heat pump
+    at: [340, 255]
+    entity: climate.pool_heat_pump
+pipes:
+  - start: skimmer
+    start_edge: bottom
+    end: pump
+    end_edge: top
+    end_point: 72
+    flow_entity: switch.pool_pump
+  - start: pump
+    end: filter
+    flow_entity: switch.pool_pump
+  - start: filter
+    start_edge: right
+    start_point: 25
+    end: heat_pump
+    end_edge: left
+    flow_entity: switch.pool_pump
+  - start: heat_pump
+    start_edge: right
+    end: inlet
+    end_edge: bottom
+    points: [[600, 300], [600, 186], [435, 186]]
+    flow_entity: switch.pool_pump
+    hot_entity: climate.pool_heat_pump

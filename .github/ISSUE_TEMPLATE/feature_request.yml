@@ -1,0 +1,16 @@
+name: Feature request / Demande d'évolution
+description: Suggest a new item type or option / Proposer un équipement ou une option
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What would you like? / Que souhaitez-vous ?
+      description: A photo or sketch of the real equipment helps / Une photo ou un croquis de l'équipement aide beaucoup
+    validations:
+      required: true
+  - type: textarea
+    id: entities
+    attributes:
+      label: Entities involved / Entités concernées
+      render: yaml

@@ -1,0 +1,540 @@
+type: custom:pool-hydraulic-card
+title: Piscine — circuit hydraulique
+width: 1200
+height: 710
+pipe_width: 8
+line_radius: 8
+grid_size: 5
+show_toggles: true
+show_bypass_buttons: true
+bypass_storage: system
+storage_key: piscine
+bypasses:
+- id: bp_pac
+  name: By-pass PAC
+  line: [v_pac_entree, v_pac_sortie]
+  bypass: [v_pac_bypass]
+- id: bp_mesures
+  name: By-pass sondes / pH
+  line: [v_mes_entree, v_mes_sortie]
+  bypass: [v_mes_bypass]
+- id: bp_electrolyse
+  name: By-pass électrolyseur
+  line: [v_elec_entree, v_elec_sortie]
+  bypass: [v_elec_bypass]
+items:
+  - type: zone
+    id: local_technique
+    name: Local technique
+    at: [80, 250]
+    size: [1110, 450]
+  - type: badge
+    id: conso
+    at: [880, 668]
+    size: [300, 24]
+    badges:
+    - entity: sensor.energie_wifi_dual_meter_puissance_piscine
+      name: Total
+      icon: mdi:flash
+    - entity: sensor.energie_compteur_tri_puissance_traitement_piscine_3p
+      name: Traitement
+    - entity: sensor.energie_compteur_tri_puissance_annexes_piscine_3p
+      name: Annexes
+  - type: pool
+    id: bassin
+    name: Bassin
+    at: [90, 30]
+    size: [650, 170]
+    entity: binary_sensor.poolmaster_pompe_filtration
+    temperature_entity: sensor.poolmaster_temperature_eau_2
+    light_entity: light.triple_switch_with_timer_and_backlight_gang_1
+    light_color: "#00e5ff"
+    badges:
+    - entity: sensor.poolmaster_temperature_air_2
+      name: Air
+      icon: mdi:weather-partly-cloudy
+  - type: skimmer
+    id: skimmer_1
+    name: Skimmer 1
+    at: [70, 60]
+    entity: binary_sensor.poolmaster_pompe_filtration
+  - type: skimmer
+    id: skimmer_2
+    name: Skimmer 2
+    at: [70, 125]
+    entity: binary_sensor.poolmaster_pompe_filtration
+  - type: drain
+    id: bonde
+    name: Bonde de fond
+    at: [440, 150]
+  - type: inlet
+    id: buse_1
+    name: Refoulement 1
+    at: [725, 50]
+    entity: binary_sensor.poolmaster_pompe_filtration
+  - type: inlet
+    id: buse_2
+    name: Refoulement 2
+    at: [725, 100]
+    entity: binary_sensor.poolmaster_pompe_filtration
+  - type: inlet
+    id: buse_3
+    name: Refoulement 3
+    at: [725, 150]
+    entity: binary_sensor.poolmaster_pompe_filtration
+  - type: light
+    id: projecteur
+    name: Spot piscine
+    at: [400, 15]
+    entity: light.triple_switch_with_timer_and_backlight_gang_1
+    tap_action:
+      action: toggle
+  - type: robot
+    id: robot
+    name: Robot
+    at: [600, 100]
+    entity: binary_sensor.poolmaster_pompe_robot
+    tap_action:
+      action: more-info
+      entity: switch.poolmaster_robot_manuel
+
+  # ---------- aspiration ----------
+  - type: valve
+    id: v_skimmer_1
+    name: Vanne skimmer 1
+    at: [11, 216]
+    orientation: vertical
+  - type: valve
+    id: v_skimmer_2
+    name: Vanne skimmer 2
+    at: [46, 216]
+    orientation: vertical
+  - type: valve
+    id: v_bonde
+    name: Vanne bonde de fond
+    at: [446, 248]
+    orientation: vertical
+  - type: junction
+    id: j_asp_1
+    at: [19, 294]
+  - type: junction
+    id: j_asp_2
+    at: [54, 294]
+  - type: junction
+    id: j_asp_pompe
+    at: [216, 294]
+  - type: junction
+    id: j_asp_3
+    at: [454, 294]
+
+  # ---------- refoulement ----------
+  - type: junction
+    id: j_ref_3
+    at: [794, 159]
+  - type: junction
+    id: j_ref_2
+    at: [794, 109]
+  - type: pump
+    id: pompe
+    name: Pompe de filtration
+    at: [150, 400]
+    entity: binary_sensor.poolmaster_pompe_filtration
+    alarm_entity: binary_sensor.poolmaster_erreur_pression
+    tap_action:
+      action: more-info
+      entity: switch.poolmaster_filtration_manuel
+    badges:
+    - entity: sensor.energie_compteur_tri_puissance_pompe_piscine_3p
+      icon: mdi:flash
+    - entity: sensor.poolmaster_uptime_filtration
+      icon: mdi:timer-outline
+  - type: gauge
+    id: manometre
+    name: Pression
+    at: [298, 326]
+    entity: sensor.poolmaster_pression_pompe
+    min: 0
+    max: 2.5
+    warn_above: number.poolmaster_seuil_pression_haute
+    alarm_entity: binary_sensor.poolmaster_erreur_pression
+    unit: bar
+    decimals: 2
+  - type: filter
+    id: filtre
+    name: Filtre
+    at: [290, 386]
+    entity: binary_sensor.poolmaster_pompe_filtration
+  - type: junction
+    id: j_pac_entree
+    at: [384, 407]
+  - type: valve
+    id: v_pac_entree
+    name: Vanne entrée PAC
+    at: [409, 399]
+  - type: heat_pump
+    id: pac
+    name: Pompe à chaleur
+    at: [460, 368]
+    label_position: top
+    entity: switch.pompe_a_chaleur_pompe_piscine_marche
+    badges:
+    - entity: sensor.pompe_a_chaleur_tin
+      name: Entrée
+    - entity: sensor.pompe_a_chaleur_piscine_temperature_sortante
+      name: Sortie
+    - entity: sensor.pompe_a_chaleur_consigne
+      name: Consigne
+    - entity: sensor.puissance_pac_piscine_3p
+      icon: mdi:flash
+  - type: valve
+    id: v_pac_sortie
+    name: Vanne sortie PAC
+    at: [598, 399]
+  - type: valve
+    id: v_pac_bypass
+    name: Vanne by-pass PAC
+    at: [501, 486]
+  - type: junction
+    id: j_pac_sortie
+    at: [634, 407]
+  - type: junction
+    id: j_mes_entree
+    at: [664, 407]
+  - type: valve
+    id: v_mes_entree
+    name: Vanne entrée sondes
+    at: [681, 399]
+  - type: probe
+    id: sonde_ph
+    name: pH
+    at: [721, 343]
+    fluid: traitee
+    badges:
+    - entity: sensor.poolmaster_ph_piscine
+      decimals: 2
+      thresholds:
+      - below: 7.0
+        color: orange
+      - above: 7.0
+        color: green
+      - above: 7.6
+        color: orange
+      - above: 8.0
+        color: red
+  - type: probe
+    id: sonde_orp
+    name: ORP
+    at: [771, 343]
+    fluid: traitee
+    badges:
+    - entity: sensor.poolmaster_orp_redox
+      thresholds:
+      - below: 650
+        color: orange
+      - above: 650
+        color: green
+      - above: 800
+        color: orange
+  - type: injection
+    id: inj_ph
+    name: Injection pH
+    at: [821, 404]
+    fluid: ph
+  - type: valve
+    id: v_mes_sortie
+    name: Vanne sortie sondes
+    at: [841, 399]
+  - type: valve
+    id: v_mes_bypass
+    name: Vanne by-pass sondes
+    at: [761, 266]
+  - type: junction
+    id: j_mes_sortie
+    at: [874, 407]
+  - type: junction
+    id: j_elec_entree
+    at: [904, 407]
+  - type: valve
+    id: v_elec_entree
+    name: Vanne entrée électrolyseur
+    at: [921, 399]
+  - type: electrolyser
+    id: electrolyseur
+    name: Électrolyseur RACER
+    at: [960, 383]
+    label_position: top
+    entity: sensor.poolmaster_racer_production
+    on_above: 0
+    tap_action:
+      action: more-info
+      entity: number.poolmaster_racer_consigne_production
+    badges:
+    - entity: sensor.poolmaster_racer_production
+      icon: mdi:flash-outline
+    - entity: sensor.poolmaster_racer_salinite
+      icon: mdi:shaker-outline
+      thresholds:
+      - below: 3
+        color: orange
+      - above: 3
+        color: green
+    - entity: sensor.poolmaster_racer_temperature
+      icon: mdi:thermometer
+  - type: valve
+    id: v_elec_sortie
+    name: Vanne sortie électrolyseur
+    at: [1091, 399]
+  - type: valve
+    id: v_elec_bypass
+    name: Vanne by-pass électrolyseur
+    at: [1006, 266]
+  - type: junction
+    id: j_elec_sortie
+    at: [1124, 407]
+  - type: dosing_pump
+    id: pompe_ph
+    name: Pompe pH (Astral)
+    at: [798, 470]
+    fluid: ph
+    label_position: right
+    entity: binary_sensor.poolmaster_pompe_ph
+    alarm_entity: binary_sensor.poolmaster_erreur_pompe_ph
+    status_entity: binary_sensor.freebox_network_inventory_astral_ph_en_ligne
+    badges:
+    - entity: sensor.pompe_ph_ph
+      name: pH
+      decimals: 2
+    - entity: sensor.pompe_ph_consigne
+      name: Consigne
+      decimals: 1
+  - type: tank
+    id: cuve_acide
+    name: Acide
+    at: [805, 575]
+    fluid: ph
+    label_position: right
+    level_entity: sensor.poolmaster_niveau_cuve_acide
+    alarm_entity: binary_sensor.poolmaster_cuve_acide_ok
+    alarm_state: "off"
+    badges:
+    - entity: sensor.poolmaster_niveau_cuve_acide
+  - type: controller
+    id: poolmaster
+    name: PoolMaster
+    at: [430, 540]
+    entity: switch.poolmaster_mode_automatique
+    status_entity: binary_sensor.freebox_network_inventory_poolmaster_en_ligne
+    badges:
+    - entity: sensor.poolmaster_filtration_debut_calcule
+      name: Début
+    - entity: sensor.poolmaster_filtration_fin_calculee
+      name: Fin
+    - entity: sensor.poolmaster_duree_filtration_calculee
+      name: Durée
+    - entity: switch.poolmaster_mode_hiver
+      name: Hiver
+
+pipes:
+
+  # ---------- aspiration ----------
+  - start: skimmer_1
+    start_edge: left
+    end: j_asp_1
+    end_edge: top
+    points: [[25, 78]]
+    valves: [v_skimmer_1]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+  - start: skimmer_2
+    start_edge: left
+    end: j_asp_2
+    end_edge: top
+    points: [[60, 143]]
+    valves: [v_skimmer_2]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+  - start: j_asp_1
+    start_edge: right
+    end: j_asp_2
+    end_edge: left
+    valves: [v_skimmer_1]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+  - start: j_asp_2
+    start_edge: right
+    end: j_asp_pompe
+    end_edge: left
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+  - start: bonde
+    start_edge: bottom
+    end: j_asp_3
+    end_edge: top
+    valves: [v_bonde]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+  - start: j_asp_3
+    start_edge: left
+    end: j_asp_pompe
+    end_edge: right
+    valves: [v_bonde]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+  - start: j_asp_pompe
+    start_edge: bottom
+    end: pompe
+    end_edge: top
+    end_point: 72
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+
+  # ---------- filtration ----------
+  - start: pompe
+    start_edge: right
+    end: filtre
+    end_edge: left
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+  - start: filtre
+    start_edge: top
+    end: manometre
+    end_edge: bottom
+    width: 4
+  - start: filtre
+    start_edge: right
+    start_point: 25
+    end: j_pac_entree
+    end_edge: left
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+
+  # ---------- PAC + by-pass ----------
+  - start: j_pac_entree
+    start_edge: right
+    end: pac
+    end_edge: left
+    valves: [v_pac_entree, v_pac_sortie]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+  - start: pac
+    start_edge: right
+    end: j_pac_sortie
+    end_edge: left
+    valves: [v_pac_entree, v_pac_sortie]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_pac_entree
+    start_edge: bottom
+    end: j_pac_sortie
+    end_edge: bottom
+    points: [[390, 500], [640, 500]]
+    valves: [v_pac_bypass]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+
+  # ---------- sondes + injection pH + by-pass (par le haut) ----------
+  - start: j_pac_sortie
+    start_edge: right
+    end: j_mes_entree
+    end_edge: left
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_mes_entree
+    start_edge: right
+    end: j_mes_sortie
+    end_edge: left
+    valves: [v_mes_entree, v_mes_sortie]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_mes_entree
+    start_edge: top
+    end: j_mes_sortie
+    end_edge: top
+    points: [[670, 280], [880, 280]]
+    valves: [v_mes_bypass]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+
+  # ---------- électrolyseur + by-pass (par le haut) ----------
+  - start: j_mes_sortie
+    start_edge: right
+    end: j_elec_entree
+    end_edge: left
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_elec_entree
+    start_edge: right
+    end: electrolyseur
+    end_edge: left
+    valves: [v_elec_entree, v_elec_sortie]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: electrolyseur
+    start_edge: right
+    end: j_elec_sortie
+    end_edge: left
+    fluid: traitee
+    valves: [v_elec_entree, v_elec_sortie]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_elec_entree
+    start_edge: top
+    end: j_elec_sortie
+    end_edge: top
+    points: [[910, 280], [1130, 280]]
+    valves: [v_elec_bypass]
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+
+  # ---------- refoulement vers les 3 buses ----------
+  - start: j_elec_sortie
+    start_edge: right
+    end: j_ref_3
+    end_edge: bottom
+    points: [[1170, 413], [1170, 235], [800, 235]]
+    fluid: traitee
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_ref_3
+    start_edge: left
+    end: buse_3
+    end_edge: right
+    fluid: traitee
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_ref_3
+    start_edge: top
+    end: j_ref_2
+    end_edge: bottom
+    fluid: traitee
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_ref_2
+    start_edge: left
+    end: buse_2
+    end_edge: right
+    fluid: traitee
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+  - start: j_ref_2
+    start_edge: top
+    end: buse_1
+    end_edge: right
+    points: [[800, 65]]
+    fluid: traitee
+    flow_entity: binary_sensor.poolmaster_pompe_filtration
+    hot_entity: switch.pompe_a_chaleur_pompe_piscine_marche
+
+  # ---------- régulation pH ----------
+  - start: cuve_acide
+    start_edge: top
+    end: pompe_ph
+    end_edge: bottom
+    fluid: ph
+    width: 4
+    flow_entity: binary_sensor.poolmaster_pompe_ph
+  - start: pompe_ph
+    start_edge: top
+    end: inj_ph
+    end_edge: bottom
+    fluid: ph
+    width: 4
+    flow_entity: binary_sensor.poolmaster_pompe_ph
+
+  # ---------- commande ----------
+  - start: poolmaster
+    start_edge: right
+    end: pompe_ph
+    end_edge: left
+    fluid: signal
+    always_flow: true
+    points: [[700, 580], [700, 502]]
