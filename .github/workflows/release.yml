@@ -3,7 +3,8 @@ name: Release
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 permissions:
   contents: write
@@ -17,7 +18,7 @@ jobs:
       - name: Check tag matches card version
         run: |
           V=$(grep -oP 'PHC_VERSION = "\K[^"]+' dist/pool-hydraulic-card.js)
-          if [ "v$V" != "${GITHUB_REF_NAME}" ]; then
+          if [ "$V" != "${GITHUB_REF_NAME#v}" ]; then
             echo "::error::Tag ${GITHUB_REF_NAME} does not match PHC_VERSION $V"; exit 1
           fi
 

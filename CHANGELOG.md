@@ -58,5 +58,5 @@ First public release. Versions 1.0.0 to 1.2.0 were private iterations and have n
 
 *Première version : plan hydraulique positionné au pixel, 30 types d'équipements, tuyaux animés, états et alarmes, éditeur visuel complet, thème HA.*
 
-[Unreleased]: https://github.com/freddye83/pool-hydraulic-card/compare/v1.2.1...HEAD
-[1.2.1]: https://github.com/freddye83/pool-hydraulic-card/releases/tag/v1.2.1
+[Unreleased]: https://github.com/freddye83/pool-hydraulic-card/compare/1.2.1...HEAD
+[1.2.1]: https://github.com/freddye83/pool-hydraulic-card/releases/tag/1.2.1
