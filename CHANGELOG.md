@@ -7,6 +7,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-11-26
+
+### Security
+- Colours are now validated before they reach a `style` or SVG attribute: `accent_color`, `light_color`, `fluids`, the `fluid` names, pipe `color`, and the `rgb_color` attribute of lights. Only well-formed CSS colours are used (`#hex`, names, `rgb()`/`hsl()`, `var(--…)`), anything else falls back to the default colour, and the values are also escaped. Waypoint coordinates drawn by the visual editor are converted to numbers. Reported in the HACS review.
+
+*Sécurité : les couleurs (`accent_color`, `light_color`, `fluids`, `fluid`, `color` des tuyaux, attribut `rgb_color` des lampes) sont validées comme couleurs CSS et échappées avant d'être insérées ; une valeur invalide reprend la couleur par défaut. Les coordonnées des points de passage de l'éditeur sont converties en nombres.*
+
 ## [1.2.1] - 2026-11-24
 
 First public release. Versions 1.0.0 to 1.2.0 were private iterations and have no tag.
@@ -58,5 +65,6 @@ First public release. Versions 1.0.0 to 1.2.0 were private iterations and have n
 
 *Première version : plan hydraulique positionné au pixel, 30 types d'équipements, tuyaux animés, états et alarmes, éditeur visuel complet, thème HA.*
 
-[Unreleased]: https://github.com/freddye83/pool-hydraulic-card/compare/1.2.1...HEAD
+[Unreleased]: https://github.com/freddye83/pool-hydraulic-card/compare/1.2.2...HEAD
+[1.2.2]: https://github.com/freddye83/pool-hydraulic-card/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/freddye83/pool-hydraulic-card/releases/tag/1.2.1

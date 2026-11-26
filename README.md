@@ -85,21 +85,21 @@ Updates are then offered by HACS like any other card.
 1. Download `pool-hydraulic-card.js` from the [latest release](https://github.com/freddye83/pool-hydraulic-card/releases/latest).
 2. Copy it to `/config/www/pool-hydraulic-card/pool-hydraulic-card.js` (Samba, Studio Code Server, File editor…). If the `www` folder did not exist, restart Home Assistant once.
 3. **Settings → Dashboards → ⋮ → Resources → Add resource**
-   - URL: `/local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.1`
+   - URL: `/local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.2`
    - Type: **JavaScript module**
 
    Or in `configuration.yaml` (YAML-mode dashboards):
    ```yaml
    lovelace:
      resources:
-       - url: /local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.1
+       - url: /local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.2
          type: module
    ```
 4. Reload your browser (<kbd>Ctrl</kbd>+<kbd>F5</kbd>).
 
 > When updating manually, replace the file and bump `?v=` in the resource URL so browsers fetch the new version.
 
-**Requirements:** Home Assistant 2024.11 or newer. The installed version is printed in the browser console (`POOL-HYDRAULIC-CARD v1.2.1`) and at the top of the visual editor.
+**Requirements:** Home Assistant 2024.11 or newer. The installed version is printed in the browser console (`POOL-HYDRAULIC-CARD v1.2.2`) and at the top of the visual editor.
 
 ## Quick start
 
@@ -354,7 +354,7 @@ A valve that has its own `entity` or `tap_action` is not driven by its bypass gr
 | `signal` | Control link (thin dashed line) | `#9e9e9e` |
 | `electrique` | Power link (thin dashed line) | `#fbc02d` |
 
-Override or add your own:
+Override or add your own (any CSS colour: `#hex`, a colour name, `rgb()`/`hsl()` or `var(--…)`; invalid values fall back to the default):
 
 ```yaml
 fluids:

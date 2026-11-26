@@ -85,21 +85,21 @@ Les mises à jour sont ensuite proposées par HACS comme pour les autres cartes.
 1. Téléchargez `pool-hydraulic-card.js` depuis la [dernière release](https://github.com/freddye83/pool-hydraulic-card/releases/latest).
 2. Copiez-le dans `/config/www/pool-hydraulic-card/pool-hydraulic-card.js` (Samba, Studio Code Server, File editor…). Si le dossier `www` n'existait pas, redémarrez Home Assistant une fois.
 3. **Paramètres → Tableaux de bord → ⋮ → Ressources → Ajouter une ressource**
-   - URL : `/local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.1`
+   - URL : `/local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.2`
    - Type : **Module JavaScript**
 
    Ou dans `configuration.yaml` (tableaux de bord en mode YAML) :
    ```yaml
    lovelace:
      resources:
-       - url: /local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.1
+       - url: /local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.2
          type: module
    ```
 4. Rechargez le navigateur (<kbd>Ctrl</kbd>+<kbd>F5</kbd>).
 
 > Lors d'une mise à jour manuelle, remplacez le fichier et incrémentez `?v=` dans l'URL de la ressource pour forcer le rechargement.
 
-**Prérequis :** Home Assistant 2024.11 ou plus récent. La version installée s'affiche dans la console du navigateur (`POOL-HYDRAULIC-CARD v1.2.1`) et en haut de l'éditeur visuel.
+**Prérequis :** Home Assistant 2024.11 ou plus récent. La version installée s'affiche dans la console du navigateur (`POOL-HYDRAULIC-CARD v1.2.2`) et en haut de l'éditeur visuel.
 
 ## Démarrage rapide
 
@@ -352,7 +352,7 @@ Une vanne qui a sa propre `entity` ou un `tap_action` n'est pas pilotée par son
 | `signal` | Liaison de commande (trait fin pointillé) | `#9e9e9e` |
 | `electrique` | Liaison électrique (trait fin pointillé) | `#fbc02d` |
 
-Modifier ou ajouter :
+Modifier ou ajouter (toute couleur CSS : `#hex`, un nom de couleur, `rgb()`/`hsl()` ou `var(--…)` ; une valeur invalide reprend la couleur par défaut) :
 
 ```yaml
 fluids:

@@ -3,7 +3,7 @@
  * Inspirée de kjanas/ha-homelab-map : équipements positionnés au pixel, tuyaux animés.
  * https://github.com/freddye83/pool-hydraulic-card — Licence MIT
  */
-const PHC_VERSION = "1.2.1";
+const PHC_VERSION = "1.2.2";
 const CARD_TAG = "pool-hydraulic-card";
 const EDITOR_TAG = "pool-hydraulic-card-editor";
 
@@ -97,7 +97,19 @@ const clone = (o) => (o === undefined ? undefined : JSON.parse(JSON.stringify(o)
 const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : null; };
 const isNumStr = (s) => typeof s === "string" && /^\s*-?\d+(\.\d+)?\s*$/.test(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const col = (c) => (c == null ? null : COLORS[c] || c);
+// Colours come from the config and from entity attributes: only well-formed CSS colours are used,
+// anything else (quotes, semicolons, markup…) is dropped before it reaches a style or an attribute.
+const CSS_COLOR_RE = /^(?:#[0-9a-f]{3,8}|[a-z]{3,30}|(?:rgb|rgba|hsl|hsla)\(\s*[-+0-9.%\s,/]+\)|var\(--[a-z0-9_-]+(?:\s*,\s*(?:#[0-9a-f]{3,8}|[a-z]{3,30}))?\))$/i;
+const cssColor = (v) => {
+  if (v == null) return null;
+  const s = String(v).trim();
+  return CSS_COLOR_RE.test(s) ? s : null;
+};
+const col = (c) => (c == null ? null : COLORS[c] || cssColor(c));
+const rgbOf = (a) =>
+  Array.isArray(a) && a.length >= 3 && a.slice(0, 3).every((n) => Number.isFinite(Number(n)))
+    ? `rgb(${a.slice(0, 3).map((n) => Math.max(0, Math.min(255, Math.round(Number(n))))).join(",")})`
+    : null;
 const r2 = (v) => Math.round(v * 100) / 100;
 const ENTITY_RE = /^[a-z_]+\.[a-z0-9_]+$/;
 const uidOf = (s) => String(s).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -185,7 +197,7 @@ function wavePath(y, amp, len, from, to) {
 
 const PICTO = {
   pool: (c) => `<svg viewBox="0 0 300 150" preserveAspectRatio="none">
-    <defs><linearGradient id="pg-${c.uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.lightColor || "var(--fl)"}" stop-opacity="${c.lightColor ? ".6" : ".45"}"/><stop offset="1" stop-color="${c.lightColor || "var(--fl)"}" stop-opacity=".95"/></linearGradient>
+    <defs><linearGradient id="pg-${c.uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${esc(c.lightColor || "var(--fl)")}" stop-opacity="${c.lightColor ? ".6" : ".45"}"/><stop offset="1" stop-color="${esc(c.lightColor || "var(--fl)")}" stop-opacity=".95"/></linearGradient>
     <radialGradient id="pl-${c.uid}" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
     <clipPath id="pc-${c.uid}"><rect x="9" y="9" width="282" height="132" rx="10"/></clipPath></defs>
     <rect class="coping" x="2" y="2" width="296" height="146" rx="16" vector-effect="non-scaling-stroke"/>
@@ -197,7 +209,7 @@ const PICTO = {
     </g></svg>`,
   spa: (c) => `<svg viewBox="0 0 140 110" preserveAspectRatio="none">
     <rect class="coping" x="2" y="2" width="136" height="106" rx="22" vector-effect="non-scaling-stroke"/>
-    <rect x="10" y="10" width="120" height="90" rx="16" fill="${c.lightColor || "var(--fl)"}" opacity="${c.lightColor ? ".85" : ".7"}"/>
+    <rect x="10" y="10" width="120" height="90" rx="16" fill="${esc(c.lightColor || "var(--fl)")}" opacity="${c.lightColor ? ".85" : ".7"}"/>
     <g>${[[30, 80], [55, 70], [80, 84], [104, 72], [42, 60], [92, 58], [68, 90]].map(([x, y], i) => `<circle class="bub" cx="${x}" cy="${y}" r="3" style="animation-delay:${(i * 0.27).toFixed(2)}s"/>`).join("")}</g>
     ${c.cover != null && c.cover > 0 ? `<rect class="cover" x="10" y="10" width="${r2(120 * c.cover)}" height="90" rx="16"/>` : ""}</svg>`,
   skimmer: () => `<svg viewBox="0 0 40 36"><rect class="b" x="3" y="4" width="34" height="28" rx="4"/><rect class="flfill" x="7" y="16" width="26" height="12" rx="2"/><path class="acc-s" d="M7 11h26"/><path class="t" d="M12 20h16M12 24h16"/></svg>`,
@@ -619,7 +631,12 @@ class PoolHydraulicCard extends HTMLElement {
     if (typeof v === "string" && ENTITY_RE.test(v)) return num(this._st(v)?.state);
     return num(v);
   }
-  _fluids() { return { ...FLUIDS_DEFAULT, ...(this._config.fluids || {}) }; }
+  _fluids() {
+    const own = {};
+    const cfg = this._config.fluids;
+    if (cfg && typeof cfg === "object") for (const [k, v] of Object.entries(cfg)) { const c = cssColor(v); if (c) own[k] = c; }
+    return { ...FLUIDS_DEFAULT, ...own };
+  }
   _fluidColor(name) { const f = this._fluids(); return f[name] || col(name) || f.eau; }
   _grid() { return Number(this._config.grid_size) || 5; }
 
@@ -661,13 +678,13 @@ class PoolHydraulicCard extends HTMLElement {
     if (it.status_entity) down = evalOn(this._st(it.status_entity), {}) !== true;
     const fluid = this._fluidColor(it.fluid || DEFAULT_FLUID[it.type] || "eau");
     let accent;
-    if (it.accent_color) accent = col(it.accent_color);
+    if (col(it.accent_color)) accent = col(it.accent_color);
     else if (DEFAULT_FLUID[it.type]) accent = fluid;
     else {
       const da = DEFAULT_ACCENT[it.type];
       accent = da ? (da.startsWith("@") ? this._fluidColor(da.slice(1)) : da) : "var(--primary-color)";
     }
-    if (it.type === "light" && st?.attributes?.rgb_color && on) accent = `rgb(${st.attributes.rgb_color.join(",")})`;
+    if (it.type === "light" && on && rgbOf(st?.attributes?.rgb_color)) accent = rgbOf(st.attributes.rgb_color);
     if (["valve", "valve3", "check_valve", "junction", "injection", "pool", "spa", "tank", "zone", "label", "badge"].includes(it.type)) {
       // ces éléments n'ont pas d'état « marche » visuel propre
     } else if (on === false) accent = "var(--disabled-text-color, #9e9e9e)";
@@ -722,7 +739,7 @@ class PoolHydraulicCard extends HTMLElement {
     const thin = THIN_FLUIDS.has(fluidName);
     let color = this._fluidColor(fluidName);
     if (p.hot_entity && evalOn(this._st(p.hot_entity), {}) === true) color = this._fluidColor(p.hot_fluid || "chaude");
-    if (p.color) color = col(p.color);
+    if (col(p.color)) color = col(p.color);
     const flow = this._pipeFlow(p);
     const w = Number(p.width ?? (thin ? 2 : this._config.pipe_width ?? 8));
     let speed = Number(p.speed ?? this._config.flow_speed ?? 40);
@@ -746,7 +763,7 @@ class PoolHydraulicCard extends HTMLElement {
     const g = this._geo(it);
     const s = this._itemState(it);
     const sel = this._editing && this._sel?.kind === "item" && this._sel.idx === i;
-    const base = `left:${g.x}px;top:${g.y}px;width:${g.w}px;height:${g.h}px;--a:${s.accent};--fl:${s.fluid};--dur:${r2(s.dur)}s`;
+    const base = `left:${g.x}px;top:${g.y}px;width:${g.w}px;height:${g.h}px;--a:${esc(s.accent)};--fl:${esc(s.fluid)};--dur:${r2(s.dur)}s`;
     const cls = `item t-${it.type} ${s.cls}${sel ? " sel" : ""}`;
     const da = `data-item="${i}"`;
     if (it.type === "zone") {
@@ -778,7 +795,7 @@ class PoolHydraulicCard extends HTMLElement {
     }
     if ((it.type === "pool" || it.type === "spa") && it.light_entity) {
       const l = this._st(it.light_entity);
-      if (evalOn(l, {}) === true) ctx.lightColor = l.attributes?.rgb_color ? `rgb(${l.attributes.rgb_color.join(",")})` : col(it.light_color) || "#00e5ff";
+      if (evalOn(l, {}) === true) ctx.lightColor = rgbOf(l.attributes?.rgb_color) || col(it.light_color) || "#00e5ff";
     }
     if (it.type === "gauge") {
       const mn = this._numOrEntity(it.min) ?? 0, mx = this._numOrEntity(it.max) ?? 3;
@@ -1051,7 +1068,7 @@ class PoolHydraulicCard extends HTMLElement {
       const g = p && this._pipeGeom(p);
       if (!g) return "";
       let h = "";
-      const explicit = Array.isArray(p.points) ? p.points : [];
+      const explicit = Array.isArray(p.points) ? p.points.filter((a) => Array.isArray(a)).map((a) => [Number(a[0]), Number(a[1])]) : [];
       if (g.auto) g.mid.forEach((pt, k) => { h += `<circle class="hdl auto" data-handle="pt" data-k="${k}" cx="${pt[0]}" cy="${pt[1]}" r="5"/>`; });
       else explicit.forEach((pt, k) => { h += `<circle class="hdl" data-handle="pt" data-k="${k}" cx="${pt[0]}" cy="${pt[1]}" r="5"/>`; });
       if (g.si) h += `<circle class="hdl end" data-handle="end" data-which="start" cx="${g.sp[0]}" cy="${g.sp[1]}" r="6"/>`;
