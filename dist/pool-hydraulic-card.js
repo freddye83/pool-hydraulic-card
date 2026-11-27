@@ -3,7 +3,7 @@
  * Inspirée de kjanas/ha-homelab-map : équipements positionnés au pixel, tuyaux animés.
  * https://github.com/freddye83/pool-hydraulic-card — Licence MIT
  */
-const PHC_VERSION = "1.2.2";
+const PHC_VERSION = "1.3.0";
 const CARD_TAG = "pool-hydraulic-card";
 const EDITOR_TAG = "pool-hydraulic-card-editor";
 
@@ -28,43 +28,169 @@ const FLUIDS_DEFAULT = {
   signal: "#9e9e9e",
   electrique: "#fbc02d",
 };
-const FLUID_LABELS = {
-  eau: "Eau", chaude: "Eau chaude", traitee: "Eau traitée", ph: "pH (acide)", chlore: "Chlore",
-  air: "Air", vidange: "Vidange / égout", signal: "Signal (commande)", electrique: "Électrique",
+/* ------------------------------------------------------------------ */
+/* Traductions (anglais / français selon la langue de Home Assistant)  */
+/* ------------------------------------------------------------------ */
+
+const I18N = {
+  en: {
+    "type.zone": "Zone / plant room", "type.pool": "Pool", "type.spa": "Spa", "type.skimmer": "Skimmer", "type.drain": "Main drain",
+    "type.inlet": "Return inlet", "type.pump": "Pump", "type.filter": "Filter", "type.heat_pump": "Heat pump", "type.heater": "Heater / heat exchanger",
+    "type.solar": "Solar panel", "type.electrolyser": "Salt chlorinator", "type.uv": "UV lamp", "type.controller": "Controller", "type.dosing_pump": "Dosing pump",
+    "type.tank": "Chemical tank", "type.probe": "Probe", "type.gauge": "Pressure gauge", "type.flowmeter": "Flow meter", "type.valve": "2-way valve",
+    "type.valve3": "3-way valve", "type.check_valve": "Check valve", "type.injection": "Injection point", "type.junction": "Junction / tee", "type.robot": "Robot",
+    "type.light": "Spotlight", "type.float": "Level float", "type.device": "Generic device (icon)", "type.badge": "Values only (badges)", "type.label": "Text",
+    "fluid.eau": "Water", "fluid.chaude": "Hot water", "fluid.traitee": "Treated water", "fluid.ph": "pH (acid)", "fluid.chlore": "Chlorine", "fluid.air": "Air",
+    "fluid.vidange": "Waste / drain", "fluid.signal": "Control signal", "fluid.electrique": "Electric",
+    "f.type": "Item type", "f.id": "ID (unique)", "f.name": "Displayed name", "f.x": "X", "f.y": "Y", "f.w": "Width", "f.h": "Height",
+    "f.entity": "State entity (running / open)", "f.on_state": "\"On\" states (comma separated)", "f.on_above": "On when value >",
+    "f.status_entity": "Availability entity (offline = red frame)", "f.alarm_entity": "Alarm entity (blinks)", "f.alarm_state": "Alarm state",
+    "f.label_position": "Label position", "f.fluid": "Fluid", "f.accent_color": "Accent colour", "f.icon": "Icon", "f.image": "Image (URL)",
+    "f.tap_action": "Tap action", "f.temperature_entity": "Water temperature", "f.temperature_decimals": "Temperature decimals",
+    "f.light_entity": "Light (tints the water)", "f.light_color": "Lit water colour", "f.cover_entity": "Cover", "f.level_entity": "Level (%)",
+    "f.min": "Minimum", "f.max": "Maximum", "f.warn_above": "Orange threshold (value or entity)", "f.alarm_above": "Red threshold (value or entity)",
+    "f.unit": "Unit", "f.decimals": "Decimals", "f.orientation": "Orientation", "f.default_state": "State without entity", "f.rotation": "Rotation (°)",
+    "f.speed_entity": "Speed entity", "f.speed_min": "Minimum speed", "f.speed_max": "Maximum speed", "f.font_size": "Text size", "f.color": "Colour",
+    "f.align": "Alignment", "f.bold": "Bold", "f.direction": "Layout", "f.bdx": "Label offset X", "f.bdy": "Label offset Y", "f.show_name": "Show name",
+    "f.attribute": "Attribute (optional)", "f.thresholds": "Colour thresholds", "f.title": "Title", "f.width": "Plan width (px)", "f.height": "Plan height (px)",
+    "f.pipe_width": "Pipe thickness", "f.line_radius": "Bend radius", "f.flow_speed": "Flow speed (px/s)", "f.bypass_storage": "Bypass storage",
+    "f.storage_key": "Storage key (default: title)", "f.show_bypass_buttons": "Bypass buttons", "f.grid_size": "Editor grid step",
+    "f.show_toggles": "Animations / Values / Grid buttons", "f.animations": "Animations on by default", "f.show_values": "Values shown by default",
+    "f.debug": "Grid shown by default", "f.fluids": "Fluid colours", "f.scale": "Scale (empty = fit width)", "f.max_scale": "Maximum scale", "f.font": "Font",
+    "f.start": "Start (item)", "f.start_edge": "Start side", "f.start_point": "Start position (%)", "f.end": "End (item)", "f.end_edge": "End side",
+    "f.end_point": "End position (%)", "f.points_txt": "Waypoints (x,y x,y …)", "f.flow_entity": "Flows when (all these entities on)",
+    "f.flow_on_above": "Flows when value >", "f.always_flow": "Always flowing", "f.reverse": "Reverse direction", "f.hot_entity": "Hot water when (entity on)",
+    "f.valves": "Valves crossed (closed = no flow)", "f.style": "Animation style", "f.speed": "Speed (px/s)",
+    "bp.id": "ID", "bp.name": "Name (button)", "bp.line": "Line valves (closed when the bypass is on)", "bp.bypass": "Bypass valves (open when it is on)",
+    "bp.default": "On by default", "bp.entity": "Control entity (optional, e.g. input_boolean)",
+    "opt.edge.top": "Top", "opt.edge.right": "Right", "opt.edge.bottom": "Bottom", "opt.edge.left": "Left", "opt.edge.center": "Centre",
+    "opt.pos.bottom": "Below", "opt.pos.top": "Above", "opt.pos.left": "Left", "opt.pos.right": "Right", "opt.pos.inside": "Inside", "opt.pos.none": "Hidden",
+    "opt.align.left": "Left", "opt.align.center": "Centre", "opt.align.right": "Right", "opt.dir.row": "In a row", "opt.dir.column": "In a column",
+    "opt.orient.horizontal": "Horizontal", "opt.orient.vertical": "Vertical", "opt.vstate.open": "Open", "opt.vstate.closed": "Closed",
+    "opt.v3.a": "Port A (right)", "opt.v3.b": "Port B (bottom)", "opt.v3route.a": "→ port A", "opt.v3route.b": "→ port B",
+    "opt.style.dots": "Dots", "opt.style.dashes": "Dashes", "opt.style.none": "None",
+    "opt.storage.system": "Shared (all devices and users)", "opt.storage.user": "Per user", "opt.storage.local": "This browser only",
+    "ui.animations": "Animations", "ui.values": "Values", "ui.grid": "Grid", "ui.on": "on", "ui.off": "off", "ui.click_toggle": "click to toggle",
+    "ui.unavailable": "unavail.", "ui.fullscreen": "Full screen", "ui.fullscreen_exit": "Exit full screen", "ui.fullscreen_title": "Interactive plan in full screen (Esc to exit)",
+    "ui.hint": "Interactive plan: drag an item to move it, drag the handle at the bottom-right to resize it. <b>Shift + click</b> a second item: creates a pipe. Selected pipe: drag the points / ends (drop an end on an item to reconnect it), <b>double-click</b> the pipe: adds a point, a point: removes it. <b>Alt</b>: move without the grid.",
+    "ui.tab_general": "General", "ui.tab_items": "Items", "ui.tab_pipes": "Pipes", "ui.bypasses": "Bypasses", "ui.add_bypass": "Add a bypass",
+    "ui.bypass_hint": "A click on a valve of the group (or on its button) toggles the whole bypass: line valves closed, bypass valves open. The position is stored as set above (\"Shared\" needs an administrator account to change it).",
+    "ui.delete": "Delete", "ui.move_up_below": "Move up (drawn below)", "ui.move_down_above": "Move down (drawn on top)", "ui.duplicate": "Duplicate", "ui.add": "Add",
+    "ui.move_up": "Move up", "ui.no_items": "No items.", "ui.values_title": "Displayed values (badges)", "ui.add_value": "Add a value",
+    "ui.no_pipes": "No pipes. Tip: select an item, then Shift + click another one on the plan.", "ui.reverse_pipe": "Swap start / end", "ui.add_pipe": "Add a pipe",
+    "ui.pipe_title": "Pipe: {a} → {b}", "ui.clear_points": "Clear the points (automatic route)", "ui.new_bypass": "Bypass {n}",
+    "err.items": "pool-hydraulic-card: the \"items\" list is required.", "err.item": "items[{i}]: invalid item.", "err.type": "items[{i}]: unknown type \"{t}\". Types: {list}",
+    "err.id": "items[{i}]: \"id\" is required.", "err.dup": "items[{i}]: duplicate id \"{id}\".", "err.pipes": "pool-hydraulic-card: \"pipes\" must be a list.",
+    "err.bypasses": "pool-hydraulic-card: \"bypasses\" must be a list.", "err.bp_id": "bypasses[{i}]: \"id\" is required.",
+    "err.pipe_ends": "pipes[{i}]: ends not found (start \"{s}\" / end \"{e}\").", "err.pipe_unknown": "pipes[{i}]: unknown item \"{id}\".",
+    "stub.zone": "Plant room",
+    "card.name": "Pool hydraulic plan", "card.desc": "Animated plan of the filtration: pump, filter, heat pump, salt chlorinator, pH/chlorine dosing, probes, valves and flow.",
+  },
+  fr: {
+    "type.zone": "Zone / local technique", "type.pool": "Bassin", "type.spa": "Spa", "type.skimmer": "Skimmer", "type.drain": "Bonde de fond",
+    "type.inlet": "Buse de refoulement", "type.pump": "Pompe", "type.filter": "Filtre", "type.heat_pump": "Pompe à chaleur", "type.heater": "Réchauffeur / échangeur",
+    "type.solar": "Panneau solaire", "type.electrolyser": "Électrolyseur", "type.uv": "Lampe UV", "type.controller": "Contrôleur", "type.dosing_pump": "Pompe doseuse",
+    "type.tank": "Bidon / cuve", "type.probe": "Sonde", "type.gauge": "Manomètre", "type.flowmeter": "Débitmètre", "type.valve": "Vanne 2 voies",
+    "type.valve3": "Vanne 3 voies", "type.check_valve": "Clapet anti-retour", "type.injection": "Point d'injection", "type.junction": "Raccord / Té", "type.robot": "Robot",
+    "type.light": "Projecteur", "type.float": "Régulateur de niveau", "type.device": "Accessoire générique (icône)", "type.badge": "Valeurs seules (badges)", "type.label": "Texte",
+    "fluid.eau": "Eau", "fluid.chaude": "Eau chaude", "fluid.traitee": "Eau traitée", "fluid.ph": "pH (acide)", "fluid.chlore": "Chlore", "fluid.air": "Air",
+    "fluid.vidange": "Vidange / égout", "fluid.signal": "Signal (commande)", "fluid.electrique": "Électrique",
+    "f.type": "Type d'équipement", "f.id": "Identifiant (unique)", "f.name": "Nom affiché", "f.x": "X", "f.y": "Y", "f.w": "Largeur", "f.h": "Hauteur",
+    "f.entity": "Entité d'état (marche / ouvert)", "f.on_state": "États « marche » (séparés par ,)", "f.on_above": "Marche si valeur >",
+    "f.status_entity": "Entité de disponibilité (hors ligne = cadre rouge)", "f.alarm_entity": "Entité d'alarme (clignote)", "f.alarm_state": "État d'alarme",
+    "f.label_position": "Position du libellé", "f.fluid": "Fluide", "f.accent_color": "Couleur d'accent", "f.icon": "Icône", "f.image": "Image (URL)",
+    "f.tap_action": "Action au clic", "f.temperature_entity": "Température de l'eau", "f.temperature_decimals": "Décimales T°",
+    "f.light_entity": "Éclairage (colore l'eau)", "f.light_color": "Couleur de l'eau éclairée", "f.cover_entity": "Volet / couverture", "f.level_entity": "Niveau (%)",
+    "f.min": "Minimum", "f.max": "Maximum", "f.warn_above": "Seuil orange (valeur ou entité)", "f.alarm_above": "Seuil rouge (valeur ou entité)",
+    "f.unit": "Unité", "f.decimals": "Décimales", "f.orientation": "Orientation", "f.default_state": "État si pas d'entité", "f.rotation": "Rotation (°)",
+    "f.speed_entity": "Entité de vitesse", "f.speed_min": "Vitesse min", "f.speed_max": "Vitesse max", "f.font_size": "Taille du texte", "f.color": "Couleur",
+    "f.align": "Alignement", "f.bold": "Gras", "f.direction": "Disposition", "f.bdx": "Décalage libellé X", "f.bdy": "Décalage libellé Y", "f.show_name": "Afficher le nom",
+    "f.attribute": "Attribut (optionnel)", "f.thresholds": "Seuils de couleur", "f.title": "Titre", "f.width": "Largeur du plan (px)", "f.height": "Hauteur du plan (px)",
+    "f.pipe_width": "Épaisseur des tuyaux", "f.line_radius": "Rayon des coudes", "f.flow_speed": "Vitesse du flux (px/s)", "f.bypass_storage": "Mémorisation des by-pass",
+    "f.storage_key": "Clé de mémorisation (défaut : titre)", "f.show_bypass_buttons": "Boutons de by-pass", "f.grid_size": "Pas de la grille d'édition",
+    "f.show_toggles": "Boutons Animations / Valeurs / Grille", "f.animations": "Animations actives par défaut", "f.show_values": "Valeurs affichées par défaut",
+    "f.debug": "Grille affichée par défaut", "f.fluids": "Couleurs des fluides", "f.scale": "Échelle (vide = ajustée à la largeur)", "f.max_scale": "Échelle maximale", "f.font": "Police",
+    "f.start": "Départ (équipement)", "f.start_edge": "Côté départ", "f.start_point": "Position départ (%)", "f.end": "Arrivée (équipement)", "f.end_edge": "Côté arrivée",
+    "f.end_point": "Position arrivée (%)", "f.points_txt": "Points de passage (x,y x,y …)", "f.flow_entity": "Flux actif si (toutes ces entités en marche)",
+    "f.flow_on_above": "Flux si valeur >", "f.always_flow": "Flux permanent", "f.reverse": "Sens inverse", "f.hot_entity": "Eau chaude si (entité en marche)",
+    "f.valves": "Vannes traversées (bloquent le flux si fermées)", "f.style": "Style d'animation", "f.speed": "Vitesse (px/s)",
+    "bp.id": "Identifiant", "bp.name": "Nom (bouton)", "bp.line": "Vannes de la ligne (fermées quand le by-pass est activé)", "bp.bypass": "Vannes du by-pass (ouvertes quand il est activé)",
+    "bp.default": "Activé par défaut", "bp.entity": "Entité de commande (optionnel, ex. input_boolean)",
+    "opt.edge.top": "Haut", "opt.edge.right": "Droite", "opt.edge.bottom": "Bas", "opt.edge.left": "Gauche", "opt.edge.center": "Centre",
+    "opt.pos.bottom": "Dessous", "opt.pos.top": "Dessus", "opt.pos.left": "À gauche", "opt.pos.right": "À droite", "opt.pos.inside": "À l'intérieur", "opt.pos.none": "Masqué",
+    "opt.align.left": "Gauche", "opt.align.center": "Centre", "opt.align.right": "Droite", "opt.dir.row": "En ligne", "opt.dir.column": "En colonne",
+    "opt.orient.horizontal": "Horizontale", "opt.orient.vertical": "Verticale", "opt.vstate.open": "Ouverte", "opt.vstate.closed": "Fermée",
+    "opt.v3.a": "Voie A (droite)", "opt.v3.b": "Voie B (bas)", "opt.v3route.a": "→ voie A", "opt.v3route.b": "→ voie B",
+    "opt.style.dots": "Points", "opt.style.dashes": "Tirets", "opt.style.none": "Aucune",
+    "opt.storage.system": "Partagée (tous appareils et utilisateurs)", "opt.storage.user": "Par utilisateur", "opt.storage.local": "Ce navigateur seulement",
+    "ui.animations": "Animations", "ui.values": "Valeurs", "ui.grid": "Grille", "ui.on": "activé", "ui.off": "désactivé", "ui.click_toggle": "cliquer pour basculer",
+    "ui.unavailable": "indispo.", "ui.fullscreen": "Plein écran", "ui.fullscreen_exit": "Quitter le plein écran", "ui.fullscreen_title": "Plan interactif en plein écran (Échap pour quitter)",
+    "ui.hint": "Plan interactif : glisser un équipement pour le déplacer, poignée en bas à droite pour le redimensionner. <b>Maj + clic</b> sur un 2ᵉ équipement : crée un tuyau. Tuyau sélectionné : glisser les points / extrémités (déposer une extrémité sur un équipement pour la rebrancher), <b>double-clic</b> sur le tuyau : ajoute un point, sur un point : le supprime. <b>Alt</b> : déplacement sans grille.",
+    "ui.tab_general": "Général", "ui.tab_items": "Équipements", "ui.tab_pipes": "Tuyaux", "ui.bypasses": "By-pass", "ui.add_bypass": "Ajouter un by-pass",
+    "ui.bypass_hint": "Un clic sur une vanne du groupe (ou sur son bouton) bascule tout le by-pass : vannes de ligne fermées, vannes de by-pass ouvertes. La position est mémorisée selon le réglage ci-dessus (« Partagée » nécessite un compte administrateur pour modifier).",
+    "ui.delete": "Supprimer", "ui.move_up_below": "Monter (dessous)", "ui.move_down_above": "Descendre (dessus)", "ui.duplicate": "Dupliquer", "ui.add": "Ajouter",
+    "ui.move_up": "Monter", "ui.no_items": "Aucun équipement.", "ui.values_title": "Valeurs affichées (badges)", "ui.add_value": "Ajouter une valeur",
+    "ui.no_pipes": "Aucun tuyau. Astuce : sélectionne un équipement puis Maj + clic sur un autre dans le plan.", "ui.reverse_pipe": "Inverser départ / arrivée", "ui.add_pipe": "Ajouter un tuyau",
+    "ui.pipe_title": "Tuyau : {a} → {b}", "ui.clear_points": "Effacer les points (tracé auto)", "ui.new_bypass": "By-pass {n}",
+    "err.items": "pool-hydraulic-card : la liste « items » est obligatoire.", "err.item": "items[{i}] : élément invalide.", "err.type": "items[{i}] : type « {t} » inconnu. Types : {list}",
+    "err.id": "items[{i}] : « id » obligatoire.", "err.dup": "items[{i}] : id « {id} » en double.", "err.pipes": "pool-hydraulic-card : « pipes » doit être une liste.",
+    "err.bypasses": "pool-hydraulic-card : « bypasses » doit être une liste.", "err.bp_id": "bypasses[{i}] : « id » obligatoire.",
+    "err.pipe_ends": "pipes[{i}] : extrémités introuvables (start « {s} » / end « {e} »).", "err.pipe_unknown": "pipes[{i}] : équipement « {id} » inconnu.",
+    "stub.zone": "Local technique",
+    "card.name": "Plan hydraulique piscine", "card.desc": "Plan animé de la filtration : pompe, filtre, PAC, électrolyseur, régulation pH/chlore, sondes, vannes et flux.",
+  },
 };
+
+// Langue de l'interface : celle de Home Assistant (fr → français, toute autre langue → anglais).
+let LANG = String((typeof navigator !== "undefined" && navigator.language) || "en").toLowerCase().startsWith("fr") ? "fr" : "en";
+const setLang = (hass) => {
+  const code = String(hass?.locale?.language || hass?.language || "").toLowerCase();
+  if (!code) return false;
+  const next = code.startsWith("fr") ? "fr" : "en";
+  const changed = next !== LANG;
+  LANG = next;
+  return changed;
+};
+const T = (key, vars) => {
+  let s = I18N[LANG][key] ?? I18N.en[key] ?? key;
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(String(v));
+  return s;
+};
+const tLabel = (prefix) => (name) => (I18N[LANG][`${prefix}.${name}`] ?? I18N.en[`${prefix}.${name}`] ?? name);
+
 const THIN_FLUIDS = new Set(["signal", "electrique"]);
 
 const TYPES = {
-  zone: { label: "Zone / local technique", size: [400, 200], icon: "mdi:selection" },
-  pool: { label: "Bassin", size: [300, 150], icon: "mdi:pool" },
-  spa: { label: "Spa", size: [140, 110], icon: "mdi:hot-tub" },
-  skimmer: { label: "Skimmer", size: [40, 36], icon: "mdi:tray-arrow-down" },
-  drain: { label: "Bonde de fond", size: [40, 22], icon: "mdi:grid" },
-  inlet: { label: "Buse de refoulement", size: [30, 30], icon: "mdi:water-outline" },
-  pump: { label: "Pompe", size: [100, 80], icon: "mdi:pump" },
-  filter: { label: "Filtre", size: [70, 108], icon: "mdi:filter" },
-  heat_pump: { label: "Pompe à chaleur", size: [120, 90], icon: "mdi:heat-pump" },
-  heater: { label: "Réchauffeur / échangeur", size: [80, 60], icon: "mdi:radiator" },
-  solar: { label: "Panneau solaire", size: [100, 60], icon: "mdi:solar-panel" },
-  electrolyser: { label: "Électrolyseur", size: [120, 60], icon: "mdi:flash" },
-  uv: { label: "Lampe UV", size: [120, 40], icon: "mdi:lightbulb-fluorescent-tube" },
-  controller: { label: "Contrôleur", size: [120, 80], icon: "mdi:chip" },
-  dosing_pump: { label: "Pompe doseuse", size: [64, 64], icon: "mdi:water-pump" },
-  tank: { label: "Bidon / cuve", size: [50, 66], icon: "mdi:bottle-tonic" },
-  probe: { label: "Sonde", size: [28, 70], icon: "mdi:test-tube" },
-  gauge: { label: "Manomètre", size: [54, 54], icon: "mdi:gauge" },
-  flowmeter: { label: "Débitmètre", size: [70, 40], icon: "mdi:speedometer" },
-  valve: { label: "Vanne 2 voies", size: [28, 28], icon: "mdi:valve" },
-  valve3: { label: "Vanne 3 voies", size: [40, 40], icon: "mdi:call-split" },
-  check_valve: { label: "Clapet anti-retour", size: [30, 30], icon: "mdi:arrow-right-bold-circle-outline" },
-  injection: { label: "Point d'injection", size: [18, 18], icon: "mdi:needle" },
-  junction: { label: "Raccord / Té", size: [12, 12], icon: "mdi:circle-small" },
-  robot: { label: "Robot", size: [56, 44], icon: "mdi:robot" },
-  light: { label: "Projecteur", size: [30, 30], icon: "mdi:light-flood-down" },
-  float: { label: "Régulateur de niveau", size: [30, 60], icon: "mdi:waves-arrow-up" },
-  device: { label: "Accessoire générique (icône)", size: [70, 60], icon: "mdi:puzzle" },
-  badge: { label: "Valeurs seules (badges)", size: [120, 24], icon: "mdi:numeric" },
-  label: { label: "Texte", size: [120, 24], icon: "mdi:format-text" },
+  zone: { size: [400, 200], icon: "mdi:selection" },
+  pool: { size: [300, 150], icon: "mdi:pool" },
+  spa: { size: [140, 110], icon: "mdi:hot-tub" },
+  skimmer: { size: [40, 36], icon: "mdi:tray-arrow-down" },
+  drain: { size: [40, 22], icon: "mdi:grid" },
+  inlet: { size: [30, 30], icon: "mdi:water-outline" },
+  pump: { size: [100, 80], icon: "mdi:pump" },
+  filter: { size: [70, 108], icon: "mdi:filter" },
+  heat_pump: { size: [120, 90], icon: "mdi:heat-pump" },
+  heater: { size: [80, 60], icon: "mdi:radiator" },
+  solar: { size: [100, 60], icon: "mdi:solar-panel" },
+  electrolyser: { size: [120, 60], icon: "mdi:flash" },
+  uv: { size: [120, 40], icon: "mdi:lightbulb-fluorescent-tube" },
+  controller: { size: [120, 80], icon: "mdi:chip" },
+  dosing_pump: { size: [64, 64], icon: "mdi:water-pump" },
+  tank: { size: [50, 66], icon: "mdi:bottle-tonic" },
+  probe: { size: [28, 70], icon: "mdi:test-tube" },
+  gauge: { size: [54, 54], icon: "mdi:gauge" },
+  flowmeter: { size: [70, 40], icon: "mdi:speedometer" },
+  valve: { size: [28, 28], icon: "mdi:valve" },
+  valve3: { size: [40, 40], icon: "mdi:call-split" },
+  check_valve: { size: [30, 30], icon: "mdi:arrow-right-bold-circle-outline" },
+  injection: { size: [18, 18], icon: "mdi:needle" },
+  junction: { size: [12, 12], icon: "mdi:circle-small" },
+  robot: { size: [56, 44], icon: "mdi:robot" },
+  light: { size: [30, 30], icon: "mdi:light-flood-down" },
+  float: { size: [30, 60], icon: "mdi:waves-arrow-up" },
+  device: { size: [70, 60], icon: "mdi:puzzle" },
+  badge: { size: [120, 24], icon: "mdi:numeric" },
+  label: { size: [120, 24], icon: "mdi:format-text" },
 };
 
 const DEFAULT_LABEL_POS = {
@@ -478,7 +604,13 @@ svg.ovl .hdl.end{fill:var(--accent-color,#ff9800)}
 
 class PoolHydraulicCard extends HTMLElement {
   static getConfigElement() { return document.createElement(EDITOR_TAG); }
-  static getStubConfig() { return clone(STUB_CONFIG); }
+  static getStubConfig() {
+    // noms de l'exemple dans la langue de l'interface
+    const stub = clone(STUB_CONFIG);
+    stub.title = T("type.pool");
+    for (const it of stub.items) if (it.name) it.name = it.type === "zone" ? T("stub.zone") : T(`type.${it.type}`);
+    return stub;
+  }
 
   constructor() {
     super();
@@ -491,18 +623,18 @@ class PoolHydraulicCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config || !Array.isArray(config.items)) throw new Error("pool-hydraulic-card : la liste « items » est obligatoire.");
+    if (!config || !Array.isArray(config.items)) throw new Error(T("err.items"));
     const seen = new Set();
     config.items.forEach((it, i) => {
-      if (!it || typeof it !== "object") throw new Error(`items[${i}] : élément invalide.`);
-      if (!it.type || !TYPES[it.type]) throw new Error(`items[${i}] : type « ${it.type} » inconnu. Types : ${Object.keys(TYPES).join(", ")}`);
-      if (!it.id) throw new Error(`items[${i}] : « id » obligatoire.`);
-      if (seen.has(String(it.id))) throw new Error(`items[${i}] : id « ${it.id} » en double.`);
+      if (!it || typeof it !== "object") throw new Error(T("err.item", { i }));
+      if (!it.type || !TYPES[it.type]) throw new Error(T("err.type", { i, t: it.type, list: Object.keys(TYPES).join(", ") }));
+      if (!it.id) throw new Error(T("err.id", { i }));
+      if (seen.has(String(it.id))) throw new Error(T("err.dup", { i, id: it.id }));
       seen.add(String(it.id));
     });
-    if (config.pipes != null && !Array.isArray(config.pipes)) throw new Error("pool-hydraulic-card : « pipes » doit être une liste.");
-    if (config.bypasses != null && !Array.isArray(config.bypasses)) throw new Error("pool-hydraulic-card : « bypasses » doit être une liste.");
-    (config.bypasses || []).forEach((b, i) => { if (!b || !b.id) throw new Error(`bypasses[${i}] : « id » obligatoire.`); });
+    if (config.pipes != null && !Array.isArray(config.pipes)) throw new Error(T("err.pipes"));
+    if (config.bypasses != null && !Array.isArray(config.bypasses)) throw new Error(T("err.bypasses"));
+    (config.bypasses || []).forEach((b, i) => { if (!b || !b.id) throw new Error(T("err.bp_id", { i })); });
     this._config = clone(config);
     this._bpByValve = new Map();
     (this._config.bypasses || []).forEach((bp) => {
@@ -519,10 +651,11 @@ class PoolHydraulicCard extends HTMLElement {
   set hass(h) {
     const old = this._hass;
     this._hass = h;
+    const langChanged = setLang(h);
     if (!this._config) return;
     if (!this._entities) this._entities = this._collectEntities();
     this._initStore();
-    if (!old || this._entities.some((e) => old.states[e] !== h.states[e]) || old.themes !== h.themes) this._render();
+    if (!old || langChanged || this._entities.some((e) => old.states[e] !== h.states[e]) || old.themes !== h.themes) this._render();
   }
   get hass() { return this._hass; }
 
@@ -618,7 +751,7 @@ class PoolHydraulicCard extends HTMLElement {
     try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* */ }
     if (mode === "local" || !this._hass?.callWS) return;
     if (mode === "system" && this._hass.user && !this._hass.user.is_admin) {
-      console.warn("pool-hydraulic-card : by-pass mémorisé dans ce navigateur seulement (l'enregistrement partagé nécessite un compte administrateur).");
+      console.warn("pool-hydraulic-card: bypass position stored in this browser only (shared storage needs an administrator account).");
       return;
     }
     try { await this._hass.callWS({ type: mode === "user" ? "frontend/set_user_data" : "frontend/set_system_data", key, value: val }); }
@@ -731,9 +864,9 @@ class PoolHydraulicCard extends HTMLElement {
 
   _pipeHtml(p, i) {
     const g = this._pipeGeom(p);
-    if (!g) { this._errors.push(`pipes[${i}] : extrémités introuvables (start « ${p.start ?? ""} » / end « ${p.end ?? ""} »).`); return ""; }
-    if (p.start && !g.si) this._errors.push(`pipes[${i}] : équipement « ${p.start} » inconnu.`);
-    if (p.end && !g.ei) this._errors.push(`pipes[${i}] : équipement « ${p.end} » inconnu.`);
+    if (!g) { this._errors.push(T("err.pipe_ends", { i, s: p.start ?? "", e: p.end ?? "" })); return ""; }
+    if (p.start && !g.si) this._errors.push(T("err.pipe_unknown", { i, id: p.start }));
+    if (p.end && !g.ei) this._errors.push(T("err.pipe_unknown", { i, id: p.end }));
     const d = roundedPath(g.all, Number(this._config.line_radius ?? 8));
     const fluidName = p.fluid || "eau";
     const thin = THIN_FLUIDS.has(fluidName);
@@ -814,14 +947,14 @@ class PoolHydraulicCard extends HTMLElement {
     const fn = PICTO[it.type];
     const svg = fn ? fn(ctx) : "";
     const grp = (it.type === "valve" || it.type === "valve3") && !it.entity ? this._bpByValve?.get(String(it.id)) : null;
-    const tip = grp ? ` title="${esc(grp.bp.name || grp.bp.id)} : ${this._bpActive(grp.bp) ? "activé" : "désactivé"} — cliquer pour basculer"` : "";
+    const tip = grp ? ` title="${esc(grp.bp.name || grp.bp.id)} : ${this._bpActive(grp.bp) ? T("ui.on") : T("ui.off")} — ${T("ui.click_toggle")}"` : "";
     return `<div class="item t-${it.type} ${s.cls}${grp ? " bpv" : ""}${sel ? " sel" : ""}" ${da} style="${base}"${tip}>${svg}</div>`;
   }
 
   _fmt(entity, attribute, unit, decimals) {
     const h = this._hass, st = this._st(entity);
     if (!st) return { txt: "—", n: null, unav: true };
-    if (!attribute && (st.state === "unavailable" || st.state === "unknown")) return { txt: st.state === "unknown" ? "?" : "indispo.", n: null, unav: true };
+    if (!attribute && (st.state === "unavailable" || st.state === "unknown")) return { txt: st.state === "unknown" ? "?" : T("ui.unavailable"), n: null, unav: true };
     const raw = attribute ? st.attributes?.[attribute] : st.state;
     if (raw == null) return { txt: "—", n: null, unav: true };
     const n = isNumStr(String(raw)) ? parseFloat(raw) : null;
@@ -946,13 +1079,13 @@ class PoolHydraulicCard extends HTMLElement {
     // barre d'outils
     const showT = c.show_toggles !== false;
     const tools = showT ? [
-      ["anim", this._ui.anim ? "mdi:pause-circle-outline" : "mdi:play-circle-outline", "Animations"],
-      ["values", "mdi:numeric", "Valeurs"],
-      ["grid", "mdi:grid", "Grille"],
-    ].map(([k, ic, l]) => `<button data-t="${k}" class="${this._ui[k] ? "on" : ""}" title="${l}"><ha-icon icon="${ic}"></ha-icon><span>${l}</span></button>`).join("") : "";
+      ["anim", this._ui.anim ? "mdi:pause-circle-outline" : "mdi:play-circle-outline", T("ui.animations")],
+      ["values", "mdi:numeric", T("ui.values")],
+      ["grid", "mdi:grid", T("ui.grid")],
+    ].map(([k, ic, l]) => `<button data-t="${k}" class="${this._ui[k] ? "on" : ""}" title="${esc(l)}"><ha-icon icon="${ic}"></ha-icon><span>${esc(l)}</span></button>`).join("") : "";
     const bps = c.show_bypass_buttons !== false ? (c.bypasses || []).map((bp) => {
       const on = this._bpActive(bp);
-      return `<button data-bp="${esc(bp.id)}" class="bp${on ? " on act" : ""}" title="${esc(bp.name || bp.id)} : ${on ? "activé" : "désactivé"}"><ha-icon icon="${on ? "mdi:source-branch-check" : "mdi:source-branch"}"></ha-icon><span>${esc(bp.name || bp.id)}</span></button>`;
+      return `<button data-bp="${esc(bp.id)}" class="bp${on ? " on act" : ""}" title="${esc(bp.name || bp.id)} : ${on ? T("ui.on") : T("ui.off")}"><ha-icon icon="${on ? "mdi:source-branch-check" : "mdi:source-branch"}"></ha-icon><span>${esc(bp.name || bp.id)}</span></button>`;
     }).join("") : "";
     const allTools = (bps ? `<div class="bps">${bps}</div>` : "") + tools;
     if (this._toolsHtml !== allTools) { this._toolsEl.innerHTML = allTools; this._toolsHtml = allTools; }
@@ -1266,29 +1399,12 @@ const STUB_CONFIG = {
 /* Éditeur visuel                                                      */
 /* ------------------------------------------------------------------ */
 
-const L = {
-  type: "Type d'équipement", id: "Identifiant (unique)", name: "Nom affiché", x: "X", y: "Y", w: "Largeur", h: "Hauteur",
-  entity: "Entité d'état (marche / ouvert)", on_state: "États « marche » (séparés par ,)", on_above: "Marche si valeur >",
-  status_entity: "Entité de disponibilité (hors ligne = cadre rouge)", alarm_entity: "Entité d'alarme (clignote)", alarm_state: "État d'alarme",
-  label_position: "Position du libellé", fluid: "Fluide", accent_color: "Couleur d'accent", icon: "Icône", image: "Image (URL)",
-  tap_action: "Action au clic", temperature_entity: "Température de l'eau", temperature_decimals: "Décimales T°", light_entity: "Éclairage (colore l'eau)", light_color: "Couleur de l'eau éclairée", cover_entity: "Volet / couverture",
-  level_entity: "Niveau (%)", min: "Minimum", max: "Maximum", warn_above: "Seuil orange (valeur ou entité)", alarm_above: "Seuil rouge (valeur ou entité)",
-  unit: "Unité", decimals: "Décimales", orientation: "Orientation", default_state: "État si pas d'entité", rotation: "Rotation (°)",
-  speed_entity: "Entité de vitesse", speed_min: "Vitesse min", speed_max: "Vitesse max", font_size: "Taille du texte", color: "Couleur",
-  align: "Alignement", bold: "Gras", direction: "Disposition", bdx: "Décalage libellé X", bdy: "Décalage libellé Y", show_name: "Afficher le nom",
-  attribute: "Attribut (optionnel)", thresholds: "Seuils de couleur",
-  title: "Titre", width: "Largeur du plan (px)", height: "Hauteur du plan (px)", pipe_width: "Épaisseur des tuyaux", line_radius: "Rayon des coudes",
-  flow_speed: "Vitesse du flux (px/s)", bypass_storage: "Mémorisation des by-pass", storage_key: "Clé de mémorisation (défaut : titre)", show_bypass_buttons: "Boutons de by-pass", grid_size: "Pas de la grille d'édition", show_toggles: "Boutons Animations / Valeurs / Grille",
-  animations: "Animations actives par défaut", show_values: "Valeurs affichées par défaut", debug: "Grille affichée par défaut", fluids: "Couleurs des fluides",
-  scale: "Échelle (vide = ajustée à la largeur)", max_scale: "Échelle maximale", font: "Police",
-  start: "Départ (équipement)", start_edge: "Côté départ", start_point: "Position départ (%)", end: "Arrivée (équipement)", end_edge: "Côté arrivée", end_point: "Position arrivée (%)",
-  points_txt: "Points de passage (x,y x,y …)", flow_entity: "Flux actif si (toutes ces entités en marche)", flow_on_above: "Flux si valeur >", always_flow: "Flux permanent",
-  reverse: "Sens inverse", hot_entity: "Eau chaude si (entité en marche)", valves: "Vannes traversées (bloquent le flux si fermées)", style: "Style d'animation",
-};
 
 const sel = (options, mode = "dropdown") => ({ select: { mode, options } });
-const EDGES = sel(["top", "right", "bottom", "left", "center"].map((v) => ({ value: v, label: { top: "Haut", right: "Droite", bottom: "Bas", left: "Gauche", center: "Centre" }[v] })));
-const POS = sel(["bottom", "top", "left", "right", "inside", "none"].map((v) => ({ value: v, label: { bottom: "Dessous", top: "Dessus", left: "À gauche", right: "À droite", inside: "À l'intérieur", none: "Masqué" }[v] })));
+// Listes d'options traduites : construites à chaque appel, dans la langue courante.
+const opts = (prefix, values) => sel(values.map((v) => ({ value: v, label: T(`opt.${prefix}.${v}`) })));
+const EDGES = () => opts("edge", ["top", "right", "bottom", "left", "center"]);
+const POS = () => opts("pos", ["bottom", "top", "left", "right", "inside", "none"]);
 const NUM = (step = 1, min, max) => ({ number: { mode: "box", step, ...(min != null ? { min } : {}), ...(max != null ? { max } : {}) } });
 const ENT = (domain) => ({ entity: domain ? { domain } : {} });
 const TXT = { text: {} };
@@ -1296,21 +1412,21 @@ const grid = (schema) => ({ type: "grid", name: "", column_min_width: "110px", s
 
 function fluidSelect(cfg) {
   const f = { ...FLUIDS_DEFAULT, ...(cfg.fluids || {}) };
-  return sel(Object.keys(f).map((k) => ({ value: k, label: FLUID_LABELS[k] || k })));
+  return sel(Object.keys(f).map((k) => ({ value: k, label: tLabel("fluid")(k) })));
 }
 
 function itemSchema(type, cfg) {
   const s = [
-    { name: "type", selector: sel(Object.entries(TYPES).map(([v, t]) => ({ value: v, label: t.label }))) },
+    { name: "type", selector: sel(Object.keys(TYPES).map((v) => ({ value: v, label: T(`type.${v}`) }))) },
     grid([{ name: "id", required: true, selector: TXT }, { name: "name", selector: TXT }]),
     grid([{ name: "x", selector: NUM() }, { name: "y", selector: NUM() }, { name: "w", selector: NUM(1, 4) }, { name: "h", selector: NUM(1, 4) }]),
   ];
   if (type === "zone") { s.push({ name: "color", selector: TXT }); return s; }
   if (type === "label") {
-    s.push(grid([{ name: "font_size", selector: NUM(1, 6, 80) }, { name: "align", selector: sel([{ value: "left", label: "Gauche" }, { value: "center", label: "Centre" }, { value: "right", label: "Droite" }]) }, { name: "bold", selector: { boolean: {} } }]), { name: "color", selector: TXT });
+    s.push(grid([{ name: "font_size", selector: NUM(1, 6, 80) }, { name: "align", selector: opts("align", ["left", "center", "right"]) }, { name: "bold", selector: { boolean: {} } }]), { name: "color", selector: TXT });
     return s;
   }
-  if (type === "badge") { s.push({ name: "direction", selector: sel([{ value: "row", label: "En ligne" }, { value: "column", label: "En colonne" }]) }); return s; }
+  if (type === "badge") { s.push({ name: "direction", selector: opts("dir", ["row", "column"]) }); return s; }
   const noState = ["junction", "check_valve", "injection"].includes(type);
   if (!noState) {
     s.push({ name: "entity", selector: ENT() });
@@ -1319,8 +1435,8 @@ function itemSchema(type, cfg) {
   if (["pool", "spa"].includes(type)) s.push({ name: "temperature_entity", selector: ENT() }, grid([{ name: "light_entity", selector: ENT("light") }, { name: "light_color", selector: TXT }, { name: "cover_entity", selector: ENT("cover") }]));
   if (type === "tank") s.push({ name: "level_entity", selector: ENT() });
   if (type === "gauge") s.push(grid([{ name: "min", selector: TXT }, { name: "max", selector: TXT }, { name: "warn_above", selector: TXT }, { name: "alarm_above", selector: TXT }, { name: "unit", selector: TXT }, { name: "decimals", selector: NUM(1, 0, 4) }]));
-  if (type === "valve") s.push(grid([{ name: "orientation", selector: sel([{ value: "horizontal", label: "Horizontale" }, { value: "vertical", label: "Verticale" }]) }, { name: "default_state", selector: sel([{ value: "open", label: "Ouverte" }, { value: "closed", label: "Fermée" }]) }]));
-  if (type === "valve3") s.push(grid([{ name: "rotation", selector: sel(["0", "90", "180", "270"].map((v) => ({ value: v, label: `${v}°` }))) }, { name: "default_state", selector: sel([{ value: "a", label: "Voie A (droite)" }, { value: "b", label: "Voie B (bas)" }]) }]));
+  if (type === "valve") s.push(grid([{ name: "orientation", selector: opts("orient", ["horizontal", "vertical"]) }, { name: "default_state", selector: opts("vstate", ["open", "closed"]) }]));
+  if (type === "valve3") s.push(grid([{ name: "rotation", selector: sel(["0", "90", "180", "270"].map((v) => ({ value: v, label: `${v}°` }))) }, { name: "default_state", selector: opts("v3", ["a", "b"]) }]));
   if (type === "check_valve") s.push({ name: "rotation", selector: sel(["0", "90", "180", "270"].map((v) => ({ value: v, label: `${v}°` }))) });
   if (["pump", "heat_pump", "dosing_pump", "flowmeter", "robot"].includes(type)) s.push(grid([{ name: "speed_entity", selector: ENT() }, { name: "speed_min", selector: NUM() }, { name: "speed_max", selector: NUM() }]));
   if (type === "device") s.push(grid([{ name: "icon", selector: { icon: {} } }, { name: "image", selector: TXT }]));
@@ -1328,7 +1444,7 @@ function itemSchema(type, cfg) {
     s.push({ name: "status_entity", selector: ENT() });
     s.push(grid([{ name: "alarm_entity", selector: ENT() }, { name: "alarm_state", selector: TXT }]));
   }
-  s.push(grid([{ name: "label_position", selector: POS }, { name: "fluid", selector: fluidSelect(cfg) }, { name: "accent_color", selector: TXT }]));
+  s.push(grid([{ name: "label_position", selector: POS() }, { name: "fluid", selector: fluidSelect(cfg) }, { name: "accent_color", selector: TXT }]));
   s.push(grid([{ name: "bdx", selector: NUM() }, { name: "bdy", selector: NUM() }]));
   s.push({ name: "tap_action", selector: { ui_action: {} } });
   return s;
@@ -1345,13 +1461,13 @@ function pipeSchema(cfg) {
   const valves = [];
   cfg.items.forEach((it) => {
     if (it.type === "valve") valves.push({ value: String(it.id), label: it.name || it.id });
-    if (it.type === "valve3") { valves.push({ value: `${it.id}:a`, label: `${it.name || it.id} → voie A` }, { value: `${it.id}:b`, label: `${it.name || it.id} → voie B` }); }
+    if (it.type === "valve3") { valves.push({ value: `${it.id}:a`, label: `${it.name || it.id} ${T("opt.v3route.a")}` }, { value: `${it.id}:b`, label: `${it.name || it.id} ${T("opt.v3route.b")}` }); }
   });
   const s = [
-    grid([{ name: "start", selector: sel(ids) }, { name: "start_edge", selector: EDGES }, { name: "start_point", selector: NUM(5, 0, 100) }]),
-    grid([{ name: "end", selector: sel(ids) }, { name: "end_edge", selector: EDGES }, { name: "end_point", selector: NUM(5, 0, 100) }]),
+    grid([{ name: "start", selector: sel(ids) }, { name: "start_edge", selector: EDGES() }, { name: "start_point", selector: NUM(5, 0, 100) }]),
+    grid([{ name: "end", selector: sel(ids) }, { name: "end_edge", selector: EDGES() }, { name: "end_point", selector: NUM(5, 0, 100) }]),
     { name: "points_txt", selector: TXT },
-    grid([{ name: "fluid", selector: fluidSelect(cfg) }, { name: "style", selector: sel([{ value: "dots", label: "Points" }, { value: "dashes", label: "Tirets" }, { value: "none", label: "Aucune" }]) }]),
+    grid([{ name: "fluid", selector: fluidSelect(cfg) }, { name: "style", selector: opts("style", ["dots", "dashes", "none"]) }]),
     { name: "flow_entity", selector: { entity: { multiple: true } } },
     grid([{ name: "flow_on_above", selector: NUM(0.1) }, { name: "always_flow", selector: { boolean: {} } }, { name: "reverse", selector: { boolean: {} } }]),
     { name: "hot_entity", selector: ENT() },
@@ -1363,24 +1479,20 @@ function pipeSchema(cfg) {
   return s;
 }
 
-const GENERAL_SCHEMA = [
+const generalSchema = () => [
   { name: "title", selector: TXT },
   grid([{ name: "width", selector: NUM(10, 100) }, { name: "height", selector: NUM(10, 100) }, { name: "grid_size", selector: NUM(1, 1, 50) }]),
   grid([{ name: "pipe_width", selector: NUM(1, 1, 30) }, { name: "line_radius", selector: NUM(1, 0, 40) }, { name: "flow_speed", selector: NUM(5, 5, 400) }]),
   grid([{ name: "scale", selector: NUM(0.05, 0.1, 5) }, { name: "max_scale", selector: NUM(0.05, 0.1, 5) }, { name: "font", selector: TXT }]),
   grid([{ name: "show_toggles", selector: { boolean: {} } }, { name: "animations", selector: { boolean: {} } }, { name: "show_values", selector: { boolean: {} } }, { name: "debug", selector: { boolean: {} } }]),
   grid([
-    { name: "bypass_storage", selector: sel([{ value: "system", label: "Partagée (tous appareils et utilisateurs)" }, { value: "user", label: "Par utilisateur" }, { value: "local", label: "Ce navigateur seulement" }]) },
+    { name: "bypass_storage", selector: opts("storage", ["system", "user", "local"]) },
     { name: "storage_key", selector: TXT },
     { name: "show_bypass_buttons", selector: { boolean: {} } },
   ]),
   { name: "fluids", selector: { object: {} } },
 ];
 
-const BP_LABELS = {
-  id: "Identifiant", name: "Nom (bouton)", line: "Vannes de la ligne (fermées quand le by-pass est activé)",
-  bypass: "Vannes du by-pass (ouvertes quand il est activé)", default: "Activé par défaut", entity: "Entité de commande (optionnel, ex. input_boolean)",
-};
 function bypassSchema(cfg) {
   const opts = cfg.items.filter((it) => it.type === "valve" || it.type === "valve3").map((it) => ({ value: String(it.id), label: `${it.name || it.id} (${it.id})` }));
   return [
@@ -1442,6 +1554,15 @@ class PoolHydraulicCardEditor extends HTMLElement {
 
   set hass(h) {
     this._hass = h;
+    if (setLang(h) && this._built) {
+      // langue changée : on reconstruit l'interface de l'éditeur
+      this._built = false;
+      this._key = "";
+      this._ensure();
+      this._updatePreview();
+      this._sync();
+      return;
+    }
     if (this._preview) this._preview.hass = h;
     this._forms.forEach((f) => (f.el.hass = h));
   }
@@ -1474,14 +1595,12 @@ class PoolHydraulicCardEditor extends HTMLElement {
     if (this._built) return;
     this.shadowRoot.innerHTML = `<style>${EDITOR_CSS}</style>
       <div class="root"><div class="left">
-      <div class="bar"><button class="btn fsbtn" title="Plan interactif en plein écran (Échap pour quitter)"><ha-icon icon="mdi:fullscreen"></ha-icon><span>Plein écran</span></button><span class="ver">pool-hydraulic-card v${PHC_VERSION}</span></div>
+      <div class="bar"><button class="btn fsbtn" title="${esc(T("ui.fullscreen_title"))}"><ha-icon icon="mdi:fullscreen"></ha-icon><span>${esc(T("ui.fullscreen"))}</span></button><span class="ver">pool-hydraulic-card v${PHC_VERSION}</span></div>
       <div class="pv"></div>
-      <div class="hint">Plan interactif : glisser un équipement pour le déplacer, poignée en bas à droite pour le redimensionner.
-        <b>Maj + clic</b> sur un 2ᵉ équipement : crée un tuyau. Tuyau sélectionné : glisser les points / extrémités (déposer une extrémité sur un équipement pour la rebrancher),
-        <b>double-clic</b> sur le tuyau : ajoute un point, sur un point : le supprime. <b>Alt</b> : déplacement sans grille.</div>
+      <div class="hint">${T("ui.hint")}</div>
       </div><div class="right">
       <div class="tabs">
-        <button data-tab="general">Général</button><button data-tab="items">Équipements</button><button data-tab="pipes">Tuyaux</button>
+        <button data-tab="general">${esc(T("ui.tab_general"))}</button><button data-tab="items">${esc(T("ui.tab_items"))}</button><button data-tab="pipes">${esc(T("ui.tab_pipes"))}</button>
       </div>
       <div class="panel"></div></div></div>`;
     const R = this.shadowRoot;
@@ -1535,7 +1654,7 @@ class PoolHydraulicCardEditor extends HTMLElement {
     if (on === this._fs) return;
     this._fs = on;
     this._root.classList.toggle("fs", on);
-    this._fsBtn.innerHTML = `<ha-icon icon="${on ? "mdi:fullscreen-exit" : "mdi:fullscreen"}"></ha-icon><span>${on ? "Quitter le plein écran" : "Plein écran"}</span>`;
+    this._fsBtn.innerHTML = `<ha-icon icon="${on ? "mdi:fullscreen-exit" : "mdi:fullscreen"}"></ha-icon><span>${esc(on ? T("ui.fullscreen_exit") : T("ui.fullscreen"))}</span>`;
     if (on) {
       this._fsApi = false;
       try { if (this._root.requestFullscreen) { await this._root.requestFullscreen({ navigationUI: "hide" }); this._fsApi = true; } } catch (e) { /* repli : superposition CSS */ }
@@ -1591,12 +1710,12 @@ class PoolHydraulicCardEditor extends HTMLElement {
     if (this._preview && JSON.stringify(this._preview._sel) !== JSON.stringify(this._sel)) this._preview.setSelection(this._sel);
   }
 
-  _form(schema, dataFn, onChange, labels) {
+  _form(schema, dataFn, onChange, prefix = "f") {
     const el = document.createElement("ha-form");
     el.hass = this._hass;
     el.schema = schema;
     el.data = dataFn();
-    el.computeLabel = (s) => (labels && labels[s.name]) ?? L[s.name] ?? s.name;
+    el.computeLabel = (s) => tLabel(prefix)(s.name);
     el.addEventListener("value-changed", (e) => { e.stopPropagation(); onChange(e.detail.value || {}); });
     this._forms.push({ el, data: dataFn });
     return el;
@@ -1619,8 +1738,9 @@ class PoolHydraulicCardEditor extends HTMLElement {
   }
 
   _buildGeneral() {
-    const names = schemaNames(GENERAL_SCHEMA);
-    this._panel.appendChild(this._form(GENERAL_SCHEMA, () => {
+    const schema0 = generalSchema();
+    const names = schemaNames(schema0);
+    this._panel.appendChild(this._form(schema0, () => {
       const d = {};
       names.forEach((n) => { if (this._config[n] !== undefined) d[n] = this._config[n]; });
       if (d.width === undefined) d.width = 1000;
@@ -1633,18 +1753,18 @@ class PoolHydraulicCardEditor extends HTMLElement {
 
     const h = document.createElement("h4");
     h.innerHTML = `<span>By-pass</span>`;
-    h.appendChild(this._btn("mdi:plus", "Ajouter un by-pass", () => {
+    h.appendChild(this._btn("mdi:plus", T("ui.add_bypass"), () => {
       const c = this._config;
       c.bypasses = c.bypasses || [];
       let n = c.bypasses.length + 1;
       while (c.bypasses.some((b) => b.id === `bypass_${n}`)) n++;
-      c.bypasses.push({ id: `bypass_${n}`, name: `By-pass ${n}`, line: [], bypass: [] });
+      c.bypasses.push({ id: `bypass_${n}`, name: T("ui.new_bypass", { n }), line: [], bypass: [] });
       this._commit(); this._sync();
     }, "btn"));
     this._panel.appendChild(h);
     const hint = document.createElement("div");
     hint.className = "hint";
-    hint.textContent = "Un clic sur une vanne du groupe (ou sur son bouton) bascule tout le by-pass : vannes de ligne fermées, vannes de by-pass ouvertes. La position est mémorisée selon le réglage ci-dessus (« Partagée » nécessite un compte administrateur pour modifier).";
+    hint.textContent = T("ui.bypass_hint");
     this._panel.appendChild(hint);
     const schema = bypassSchema(this._config);
     const bn = schemaNames(schema);
@@ -1653,7 +1773,7 @@ class PoolHydraulicCardEditor extends HTMLElement {
       box.className = "sub";
       const bar = document.createElement("div");
       bar.className = "bar";
-      bar.appendChild(this._btn("mdi:delete-outline", "Supprimer", () => {
+      bar.appendChild(this._btn("mdi:delete-outline", T("ui.delete"), () => {
         this._config.bypasses.splice(k, 1);
         if (!this._config.bypasses.length) delete this._config.bypasses;
         this._commit(); this._sync();
@@ -1664,7 +1784,7 @@ class PoolHydraulicCardEditor extends HTMLElement {
         bn.forEach((n) => setOrDel(b, n, v[n]));
         if (!b.id) b.id = `bypass_${k + 1}`;
         this._commit();
-      }, BP_LABELS));
+      }, "bp"));
       this._panel.appendChild(box);
     });
   }
@@ -1680,17 +1800,17 @@ class PoolHydraulicCardEditor extends HTMLElement {
     const c = this._config;
     const list = document.createElement("div");
     list.className = "list";
-    if (!c.items.length) list.innerHTML = `<div class="empty">Aucun équipement.</div>`;
+    if (!c.items.length) list.innerHTML = `<div class="empty">${esc(T("ui.no_items"))}</div>`;
     c.items.forEach((it, i) => {
       const row = document.createElement("div");
       row.className = `row${this._sel?.kind === "item" && this._sel.idx === i ? " on" : ""}`;
-      row.innerHTML = `<ha-icon icon="${TYPES[it.type]?.icon || "mdi:help"}"></ha-icon><span class="grow">${esc(it.name || it.id)} <span class="muted">${esc(it.id)} · ${esc(TYPES[it.type]?.label || it.type)}</span></span>`;
+      row.innerHTML = `<ha-icon icon="${TYPES[it.type]?.icon || "mdi:help"}"></ha-icon><span class="grow">${esc(it.name || it.id)} <span class="muted">${esc(it.id)} · ${esc(T(`type.${it.type}`))}</span></span>`;
       row.addEventListener("click", () => this._setSel({ kind: "item", idx: i }));
       row.append(
-        this._btn("mdi:arrow-up", "Monter (dessous)", () => this._moveItem(i, -1)),
-        this._btn("mdi:arrow-down", "Descendre (dessus)", () => this._moveItem(i, 1)),
-        this._btn("mdi:content-copy", "Dupliquer", () => this._dupItem(i)),
-        this._btn("mdi:delete-outline", "Supprimer", () => this._delItem(i)),
+        this._btn("mdi:arrow-up", T("ui.move_up_below"), () => this._moveItem(i, -1)),
+        this._btn("mdi:arrow-down", T("ui.move_down_above"), () => this._moveItem(i, 1)),
+        this._btn("mdi:content-copy", T("ui.duplicate"), () => this._dupItem(i)),
+        this._btn("mdi:delete-outline", T("ui.delete"), () => this._delItem(i)),
       );
       list.appendChild(row);
     });
@@ -1699,16 +1819,16 @@ class PoolHydraulicCardEditor extends HTMLElement {
     const add = document.createElement("div");
     add.className = "add";
     const s = document.createElement("select");
-    s.innerHTML = Object.entries(TYPES).map(([k, t]) => `<option value="${k}">${esc(t.label)}</option>`).join("");
+    s.innerHTML = Object.keys(TYPES).map((k) => `<option value="${k}">${esc(T(`type.${k}`))}</option>`).join("");
     s.value = "pump";
-    add.append(s, this._btn("mdi:plus", "Ajouter", () => this._addItem(s.value), "btn"));
+    add.append(s, this._btn("mdi:plus", T("ui.add"), () => this._addItem(s.value), "btn"));
     this._panel.appendChild(add);
 
     const it = this._sel?.kind === "item" ? c.items[this._sel.idx] : null;
     if (!it) return;
     const idx = this._sel.idx;
     const h = document.createElement("h4");
-    h.textContent = `${TYPES[it.type]?.label || it.type} — ${it.name || it.id}`;
+    h.textContent = `${T(`type.${it.type}`)} — ${it.name || it.id}`;
     this._panel.appendChild(h);
     const schema = itemSchema(it.type, c);
     const names = schemaNames(schema);
@@ -1725,8 +1845,8 @@ class PoolHydraulicCardEditor extends HTMLElement {
 
     if (["label", "zone", "junction"].includes(it.type)) return;
     const bh = document.createElement("h4");
-    bh.innerHTML = `<span>Valeurs affichées (badges)</span>`;
-    bh.appendChild(this._btn("mdi:plus", "Ajouter une valeur", () => {
+    bh.innerHTML = `<span>${esc(T("ui.values_title"))}</span>`;
+    bh.appendChild(this._btn("mdi:plus", T("ui.add_value"), () => {
       const cur = this._config.items[idx];
       cur.badges = cur.badges || [];
       cur.badges.push({ entity: "" });
@@ -1739,8 +1859,8 @@ class PoolHydraulicCardEditor extends HTMLElement {
       const bar = document.createElement("div");
       bar.className = "bar";
       bar.append(
-        this._btn("mdi:arrow-up", "Monter", () => { const a = this._config.items[idx].badges; if (k > 0) { [a[k - 1], a[k]] = [a[k], a[k - 1]]; this._commit(); this._key = ""; this._sync(); } }),
-        this._btn("mdi:delete-outline", "Supprimer", () => { const a = this._config.items[idx].badges; a.splice(k, 1); if (!a.length) delete this._config.items[idx].badges; this._commit(); this._sync(); }),
+        this._btn("mdi:arrow-up", T("ui.move_up"), () => { const a = this._config.items[idx].badges; if (k > 0) { [a[k - 1], a[k]] = [a[k], a[k - 1]]; this._commit(); this._key = ""; this._sync(); } }),
+        this._btn("mdi:delete-outline", T("ui.delete"), () => { const a = this._config.items[idx].badges; a.splice(k, 1); if (!a.length) delete this._config.items[idx].badges; this._commit(); this._sync(); }),
       );
       box.appendChild(bar);
       const bn = schemaNames(BADGE_SCHEMA);
@@ -1793,7 +1913,7 @@ class PoolHydraulicCardEditor extends HTMLElement {
     const W = Number(c.width) || 1000, H = Number(c.height) || 600;
     const sz = TYPES[type].size;
     const id = this._uniqueId(type);
-    const it = { type, id, name: type === "junction" || type === "injection" ? undefined : TYPES[type].label, at: [Math.round((W - sz[0]) / 2), Math.round((H - sz[1]) / 2)] };
+    const it = { type, id, name: type === "junction" || type === "injection" ? undefined : T(`type.${type}`), at: [Math.round((W - sz[0]) / 2), Math.round((H - sz[1]) / 2)] };
     if (type === "badge") it.badges = [{ entity: "" }];
     if (it.name === undefined) delete it.name;
     if (type === "zone") c.items.unshift(it); else c.items.push(it);
@@ -1837,18 +1957,18 @@ class PoolHydraulicCardEditor extends HTMLElement {
     c.pipes = c.pipes || [];
     const list = document.createElement("div");
     list.className = "list";
-    if (!c.pipes.length) list.innerHTML = `<div class="empty">Aucun tuyau. Astuce : sélectionne un équipement puis Maj + clic sur un autre dans le plan.</div>`;
+    if (!c.pipes.length) list.innerHTML = `<div class="empty">${esc(T("ui.no_pipes"))}</div>`;
     const nm = (id) => { const it = c.items.find((x) => String(x.id) === String(id)); return it ? it.name || it.id : id ?? "—"; };
     c.pipes.forEach((p, i) => {
       const row = document.createElement("div");
       row.className = `row${this._sel?.kind === "pipe" && this._sel.idx === i ? " on" : ""}`;
       const color = { ...FLUIDS_DEFAULT, ...(c.fluids || {}) }[p.fluid || "eau"] || "#29b6f6";
-      row.innerHTML = `<ha-icon icon="mdi:pipe" style="color:${esc(color)}"></ha-icon><span class="grow">${esc(nm(p.start))} → ${esc(nm(p.end))} <span class="muted">${esc(FLUID_LABELS[p.fluid || "eau"] || p.fluid)}</span></span>`;
+      row.innerHTML = `<ha-icon icon="mdi:pipe" style="color:${esc(color)}"></ha-icon><span class="grow">${esc(nm(p.start))} → ${esc(nm(p.end))} <span class="muted">${esc(tLabel("fluid")(p.fluid || "eau"))}</span></span>`;
       row.addEventListener("click", () => this._setSel({ kind: "pipe", idx: i }));
       row.append(
-        this._btn("mdi:swap-horizontal", "Inverser départ / arrivée", () => this._flipPipe(i)),
-        this._btn("mdi:content-copy", "Dupliquer", () => { c.pipes.splice(i + 1, 0, clone(p)); this._commit(); this._setSel({ kind: "pipe", idx: i + 1 }); }),
-        this._btn("mdi:delete-outline", "Supprimer", () => { c.pipes.splice(i, 1); if (!c.pipes.length) delete c.pipes; this._commit(); this._setSel(null); }),
+        this._btn("mdi:swap-horizontal", T("ui.reverse_pipe"), () => this._flipPipe(i)),
+        this._btn("mdi:content-copy", T("ui.duplicate"), () => { c.pipes.splice(i + 1, 0, clone(p)); this._commit(); this._setSel({ kind: "pipe", idx: i + 1 }); }),
+        this._btn("mdi:delete-outline", T("ui.delete"), () => { c.pipes.splice(i, 1); if (!c.pipes.length) delete c.pipes; this._commit(); this._setSel(null); }),
       );
       list.appendChild(row);
     });
@@ -1856,7 +1976,7 @@ class PoolHydraulicCardEditor extends HTMLElement {
     this._panel.appendChild(list);
     const add = document.createElement("div");
     add.className = "add";
-    add.appendChild(this._btn("mdi:plus", "Ajouter un tuyau", () => {
+    add.appendChild(this._btn("mdi:plus", T("ui.add_pipe"), () => {
       const cc = this._config;
       cc.pipes = cc.pipes || [];
       const a = cc.items.find((x) => !["zone", "label", "badge"].includes(x.type));
@@ -1871,7 +1991,7 @@ class PoolHydraulicCardEditor extends HTMLElement {
     const p = c.pipes?.[idx];
     if (!p) return;
     const h = document.createElement("h4");
-    h.textContent = `Tuyau : ${nm(p.start)} → ${nm(p.end)}`;
+    h.textContent = T("ui.pipe_title", { a: nm(p.start), b: nm(p.end) });
     this._panel.appendChild(h);
     const schema = pipeSchema(c);
     const names = schemaNames(schema);
@@ -1900,7 +2020,7 @@ class PoolHydraulicCardEditor extends HTMLElement {
     const tools = document.createElement("div");
     tools.className = "add";
     tools.append(
-      this._btn("mdi:vector-polyline-remove", "Effacer les points (tracé auto)", () => { delete this._config.pipes[idx].points; this._commit(); this._sync(); }, "btn"),
+      this._btn("mdi:vector-polyline-remove", T("ui.clear_points"), () => { delete this._config.pipes[idx].points; this._commit(); this._sync(); }, "btn"),
     );
     this._panel.appendChild(tools);
   }
@@ -1926,8 +2046,8 @@ window.customCards = window.customCards || [];
 if (!window.customCards.some((c) => c.type === CARD_TAG)) {
   window.customCards.push({
     type: CARD_TAG,
-    name: "Plan hydraulique piscine",
-    description: "Plan animé de la filtration : pompe, filtre, PAC, électrolyseur, régulation pH/chlore, sondes, vannes et flux.",
+    name: T("card.name"),
+    description: T("card.desc"),
     preview: true,
     documentationURL: "https://github.com/freddye83/pool-hydraulic-card",
   });

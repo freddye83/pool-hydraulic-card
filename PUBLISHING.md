@@ -27,24 +27,11 @@ La version est définie à un seul endroit : `PHC_VERSION` dans `dist/pool-hydra
 5. Créer la release sur GitHub : **Releases → Draft a new release → Choose a tag**, taper `1.x.y` (format sans « v », comme `1.2.1`) → **Create new tag on publish**, cible `main` → **Publish release**. Ou en ligne de commande : `git tag 1.x.y && git push origin 1.x.y`.
 6. Le workflow **Release** vérifie que le tag correspond à `PHC_VERSION` (avec ou sans « v »), remplace les notes par la section du changelog et joint `pool-hydraulic-card.js`. HACS propose alors la mise à jour.
 
-## 3. Installation par HACS en dépôt personnalisé
+## 3. Catalogue HACS
 
-Dès la première release, n'importe qui peut installer la carte : HACS → ⋮ → Dépôts personnalisés → `https://github.com/freddye83/pool-hydraulic-card`, type **Tableau de bord**. Le bouton « Open in HACS » des README fait la même chose.
+La carte fait partie du catalogue HACS par défaut depuis le 27/11/2026 (pull request hacs/default#14875). Chaque nouvelle release GitHub est proposée en mise à jour aux utilisateurs, sans autre démarche.
 
-## 4. Inclusion dans le catalogue HACS par défaut
-
-Pour que la carte apparaisse dans la recherche HACS sans ajouter de dépôt personnalisé :
-
-1. Prérequis (déjà prévus dans ce dépôt, sauf ceux réglés sur GitHub) :
-   - dépôt public, actif, description, topics et issues activées (étape 1) ;
-   - `hacs.json` avec une clé `name` ;
-   - images dans le README ;
-   - licence reconnue par GitHub et approuvée OSI (MIT) ;
-   - workflow **Validate** (action HACS) au vert, sans erreur ni exception ;
-   - au moins une **release GitHub complète** (pas seulement un tag), créée après le passage des vérifications.
-2. Forker `https://github.com/hacs/default` avec le compte personnel `freddye83` (pas une organisation).
-3. Créer une branche à partir de `master`, éditer le fichier `plugin` et y insérer `freddye83/pool-hydraulic-card` **à sa place alphabétique**.
-4. Ouvrir la pull request en remplissant entièrement le modèle. Le bot exige **deux liens réels** : la release (`https://github.com/freddye83/pool-hydraulic-card/releases/tag/1.x.y`) et un run **Validate** réussi (`https://github.com/freddye83/pool-hydraulic-card/actions/runs/…`). Un lien manquant ou un texte à remplacer fait fermer la PR automatiquement. Si elle est en brouillon, la passer en « Ready for review ».
-5. Les vérifications automatiques de HACS doivent toutes passer. La revue peut prendre plusieurs mois ; après fusion, la carte apparaît au scan suivant.
-
-Une fois la carte dans le catalogue par défaut, le badge `HACS-Custom` des README peut être remplacé par `HACS-Default`.
+Rappels pour garder la carte dans le catalogue :
+- le workflow **Validate** (action HACS) doit rester vert ;
+- toujours publier une **release GitHub complète** (pas seulement un tag) ;
+- ne pas renommer le dépôt ni le fichier `dist/pool-hydraulic-card.js` (déclaré dans `hacs.json`).

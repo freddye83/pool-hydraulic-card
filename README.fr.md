@@ -2,7 +2,7 @@
 
 [English](README.md) · **Français**
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
+[![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![GitHub release](https://img.shields.io/github/v/release/freddye83/pool-hydraulic-card)](https://github.com/freddye83/pool-hydraulic-card/releases)
 [![Validate](https://github.com/freddye83/pool-hydraulic-card/actions/workflows/validate.yml/badge.svg)](https://github.com/freddye83/pool-hydraulic-card/actions/workflows/validate.yml)
 [![Licence : MIT](https://img.shields.io/badge/Licence-MIT-yellow.svg)](LICENSE)
@@ -63,13 +63,16 @@ Inspirée de [kjanas/ha-homelab-map](https://github.com/kjanas/ha-homelab-map) :
 
 [![Ouvrir votre instance Home Assistant et afficher ce dépôt dans HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=freddye83&repository=pool-hydraulic-card&category=plugin)
 
+Pool Hydraulic Card fait partie du catalogue HACS par défaut : inutile d'ajouter un dépôt personnalisé.
+
 Cliquez sur le bouton ci-dessus, ou à la main :
 
 1. Ouvrez **HACS** dans Home Assistant.
-2. Menu **⋮** (en haut à droite) → **Dépôts personnalisés**.
-3. Dépôt : `https://github.com/freddye83/pool-hydraulic-card`, type : **Tableau de bord** (Dashboard), puis **Ajouter**.
-4. Recherchez **Pool Hydraulic Card**, ouvrez-la et cliquez sur **Télécharger**.
-5. Rechargez le navigateur (<kbd>Ctrl</kbd>+<kbd>F5</kbd>). Dans l'application mobile, videz le cache du frontend.
+2. Recherchez **Pool Hydraulic Card**, ouvrez-la et cliquez sur **Télécharger**.
+3. Rechargez le navigateur (<kbd>Ctrl</kbd>+<kbd>F5</kbd>). Dans l'application mobile, videz le cache du frontend.
+4. Ajoutez la carte à un tableau de bord : **Modifier le tableau de bord → Ajouter une carte**, recherchez **Plan hydraulique piscine**.
+
+> **Déjà installée en dépôt personnalisé ?** Rien à faire : les mises à jour continuent d'arriver par HACS. Vous pouvez supprimer l'entrée dans **HACS → ⋮ → Dépôts personnalisés** si vous le souhaitez.
 
 HACS déclare automatiquement la ressource du tableau de bord. Si ce n'est pas le cas (tableaux de bord en mode YAML), ajoutez-la :
 
@@ -85,21 +88,21 @@ Les mises à jour sont ensuite proposées par HACS comme pour les autres cartes.
 1. Téléchargez `pool-hydraulic-card.js` depuis la [dernière release](https://github.com/freddye83/pool-hydraulic-card/releases/latest).
 2. Copiez-le dans `/config/www/pool-hydraulic-card/pool-hydraulic-card.js` (Samba, Studio Code Server, File editor…). Si le dossier `www` n'existait pas, redémarrez Home Assistant une fois.
 3. **Paramètres → Tableaux de bord → ⋮ → Ressources → Ajouter une ressource**
-   - URL : `/local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.2`
+   - URL : `/local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.3.0`
    - Type : **Module JavaScript**
 
    Ou dans `configuration.yaml` (tableaux de bord en mode YAML) :
    ```yaml
    lovelace:
      resources:
-       - url: /local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.2
+       - url: /local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.3.0
          type: module
    ```
 4. Rechargez le navigateur (<kbd>Ctrl</kbd>+<kbd>F5</kbd>).
 
 > Lors d'une mise à jour manuelle, remplacez le fichier et incrémentez `?v=` dans l'URL de la ressource pour forcer le rechargement.
 
-**Prérequis :** Home Assistant 2024.11 ou plus récent. La version installée s'affiche dans la console du navigateur (`POOL-HYDRAULIC-CARD v1.2.2`) et en haut de l'éditeur visuel.
+**Prérequis :** Home Assistant 2024.11 ou plus récent. La version installée s'affiche dans la console du navigateur (`POOL-HYDRAULIC-CARD v1.3.0`) et en haut de l'éditeur visuel.
 
 ## Démarrage rapide
 
@@ -154,6 +157,8 @@ Sous le plan, trois onglets :
 - **Tuyaux** : liste, ajout / duplication / suppression / inversion, toutes les options du tuyau sélectionné.
 
 Les onglets standard **Visibilité** et **Disposition** de Home Assistant restent disponibles.
+
+> La carte et son éditeur suivent la langue de Home Assistant : français, ou anglais pour toutes les autres langues. Les options YAML sont toujours en anglais.
 
 ## Référence de configuration
 

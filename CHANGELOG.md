@@ -7,6 +7,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-27
+
+### Added
+- English and French interface: the card (toolbar, bypass buttons and tooltips, *unavailable* text, error messages), the visual editor (labels, options, buttons, hints) and the card picker entry follow the language of Home Assistant — French when it is French, English for every other language. Switching the language in Home Assistant updates the open editor.
+- The sample card created from the card picker uses names in the same language.
+
+### Changed
+- Now in the default HACS store: installation no longer needs a custom repository.
+
+*Ajouté : interface en anglais et en français selon la langue de Home Assistant (carte, éditeur visuel, sélecteur de cartes, exemple). Modifié : la carte est dans le catalogue HACS par défaut, plus besoin de dépôt personnalisé.*
+
 ## [1.2.2] - 2026-11-26
 
 ### Security
@@ -65,6 +76,7 @@ First public release. Versions 1.0.0 to 1.2.0 were private iterations and have n
 
 *Première version : plan hydraulique positionné au pixel, 30 types d'équipements, tuyaux animés, états et alarmes, éditeur visuel complet, thème HA.*
 
-[Unreleased]: https://github.com/freddye83/pool-hydraulic-card/compare/1.2.2...HEAD
+[Unreleased]: https://github.com/freddye83/pool-hydraulic-card/compare/1.3.0...HEAD
+[1.3.0]: https://github.com/freddye83/pool-hydraulic-card/compare/1.2.2...1.3.0
 [1.2.2]: https://github.com/freddye83/pool-hydraulic-card/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/freddye83/pool-hydraulic-card/releases/tag/1.2.1

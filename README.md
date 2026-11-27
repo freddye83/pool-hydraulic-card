@@ -2,7 +2,7 @@
 
 **English** · [Français](README.fr.md)
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
+[![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz)
 [![GitHub release](https://img.shields.io/github/v/release/freddye83/pool-hydraulic-card)](https://github.com/freddye83/pool-hydraulic-card/releases)
 [![Validate](https://github.com/freddye83/pool-hydraulic-card/actions/workflows/validate.yml/badge.svg)](https://github.com/freddye83/pool-hydraulic-card/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -63,13 +63,16 @@ Inspired by [kjanas/ha-homelab-map](https://github.com/kjanas/ha-homelab-map): i
 
 [![Open your Home Assistant instance and open this repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=freddye83&repository=pool-hydraulic-card&category=plugin)
 
+Pool Hydraulic Card is in the default HACS store: no custom repository is needed.
+
 Click the button above, or do it by hand:
 
 1. Open **HACS** in Home Assistant.
-2. Menu **⋮** (top right) → **Custom repositories**.
-3. Repository: `https://github.com/freddye83/pool-hydraulic-card`, type: **Dashboard**, then **Add**.
-4. Search for **Pool Hydraulic Card**, open it and click **Download**.
-5. Reload your browser (<kbd>Ctrl</kbd>+<kbd>F5</kbd>). On the companion app, clear the frontend cache.
+2. Search for **Pool Hydraulic Card**, open it and click **Download**.
+3. Reload your browser (<kbd>Ctrl</kbd>+<kbd>F5</kbd>). On the companion app, clear the frontend cache.
+4. Add the card to a dashboard: **Edit dashboard → Add card**, search for **Pool hydraulic plan**.
+
+> **Installed it earlier as a custom repository?** Nothing to do: updates keep coming through HACS. You can remove the entry from **HACS → ⋮ → Custom repositories** if you like.
 
 HACS registers the dashboard resource automatically. If it does not (YAML-mode dashboards), add it yourself:
 
@@ -85,25 +88,25 @@ Updates are then offered by HACS like any other card.
 1. Download `pool-hydraulic-card.js` from the [latest release](https://github.com/freddye83/pool-hydraulic-card/releases/latest).
 2. Copy it to `/config/www/pool-hydraulic-card/pool-hydraulic-card.js` (Samba, Studio Code Server, File editor…). If the `www` folder did not exist, restart Home Assistant once.
 3. **Settings → Dashboards → ⋮ → Resources → Add resource**
-   - URL: `/local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.2`
+   - URL: `/local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.3.0`
    - Type: **JavaScript module**
 
    Or in `configuration.yaml` (YAML-mode dashboards):
    ```yaml
    lovelace:
      resources:
-       - url: /local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.2.2
+       - url: /local/pool-hydraulic-card/pool-hydraulic-card.js?v=1.3.0
          type: module
    ```
 4. Reload your browser (<kbd>Ctrl</kbd>+<kbd>F5</kbd>).
 
 > When updating manually, replace the file and bump `?v=` in the resource URL so browsers fetch the new version.
 
-**Requirements:** Home Assistant 2024.11 or newer. The installed version is printed in the browser console (`POOL-HYDRAULIC-CARD v1.2.2`) and at the top of the visual editor.
+**Requirements:** Home Assistant 2024.11 or newer. The installed version is printed in the browser console (`POOL-HYDRAULIC-CARD v1.3.0`) and at the top of the visual editor.
 
 ## Quick start
 
-Add a card from the dashboard editor: search for **Pool Hydraulic Card** in the card picker. A small sample plan is created; open the visual editor to place your equipment and pick your entities.
+Add a card from the dashboard editor: search for **Pool hydraulic plan** in the card picker. A small sample plan is created; open the visual editor to place your equipment and pick your entities.
 
 Or paste this minimal YAML (replace the entities with yours):
 
@@ -155,7 +158,7 @@ Below the plan, three tabs:
 
 The standard **Visibility** and **Layout** tabs of Home Assistant remain available.
 
-> The editor labels are currently in French. All YAML options are in English.
+> The card and its editor follow the language of Home Assistant: French, or English for every other language. YAML options are always in English.
 
 ## Configuration reference
 
